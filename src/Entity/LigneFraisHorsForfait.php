@@ -13,8 +13,23 @@ class LigneFraisHorsForfait
     #[ORM\Column]
     private ?int $id = null;
 
+    #[ORM\ManyToOne(inversedBy: 'lignesfraishorsforfait')]
+    private ?FicheFrais $fichesFrais = null;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getFichesFrais(): ?FicheFrais
+    {
+        return $this->fichesFrais;
+    }
+
+    public function setFichesFrais(?FicheFrais $fichesFrais): static
+    {
+        $this->fichesFrais = $fichesFrais;
+
+        return $this;
     }
 }
