@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen bg-gray-100 py-12 px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">Mon Profil</h1>
+
+            {% for message in app.flashes('success') %}
+                <div class="mb-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="mb-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded">
+                    <p>{{ message }}</p>
+                </div>
+            {% endfor %}
+
+            <!-- Section de changement de mot de passe -->
+            <h2 class="text-2xl font-semibold text-gray-800 mt-8 mb-4">Changer de mot de passe</h2>
+            <form method="post" class="space-y-6">
+                <input type="hidden" name="password_form" value="1">
+
+                <div class="space-y-2">
+                    <label for="new_password" class="block text-sm font-medium text-gray-700">Nouveau mot de passe</label>
+                    <input type="password" id="new_password" name="new_password" required class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <div class="space-y-2">
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirmer le mot de passe</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required class="appearance-none rounded-lg relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+
+                <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Mettre à jour le mot de passe
+                </button>
+            </form>
+
+            <hr class="my-8 border-gray-300">
+
+            <!-- Section de gestion de l'authentification à deux facteurs -->
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Authentification à deux facteurs (2FA)</h2>
+
+            <!-- Formulaire pour désactiver 2FA -->
+            {% for type, messages in app.flashes %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                        <div class="p-4 mb-2 text-sm text-white {{ type == 'success' ? 'bg-green-500' : 'bg-red-500' }} rounded-lg" role="alert">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+            {% if user.isTwoFactorEnabled() %}
+                <p class="text-green-700 font-medium mb-4">L'A2F est actuellement <strong>activée</strong>.</p>
+                <form method="post" action="{{ path('app_disable_2fa') }}">
+                    <input type="hidden" name="2fa_form" value="0">
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                        Désactiver 2FA
+                    </button>
+                </form>
+            {% else %}
+                <p class="text-red-700 font-medium mb-4">L'A2F est actuellement <strong>désactivée</strong>.</p>
+                <form method="post">
+                    <input type="hidden" name="2fa_form" value="1">
+                    <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Activer 2FA
+                    </button>
+                </form>
+            {% endif %}
+
+        </div>
+    </div>
+{% endblock %}

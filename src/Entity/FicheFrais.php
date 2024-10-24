@@ -3,10 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\FicheFraisRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Exception;
 
 #[ORM\Entity(repositoryClass: FicheFraisRepository::class)]
 class FicheFrais
@@ -17,7 +20,7 @@ class FicheFrais
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $mois = null;
+    private ?DateTimeInterface $mois = null;
 
     #[ORM\Column(nullable: true)]
     private ?int $nbJustificatifs = null;
@@ -26,7 +29,7 @@ class FicheFrais
     private ?string $montantValid = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
-    private ?\DateTimeInterface $dateModif = null;
+    private ?DateTimeInterface $dateModif = null;
 
     #[ORM\ManyToOne(inversedBy: 'fichefrais')]
     private ?User $user = null;
@@ -57,14 +60,17 @@ class FicheFrais
         return $this->id;
     }
 
-    public function getMois(): ?\DateTimeInterface
+    public function getMois(): ?DateTimeInterface
     {
         return $this->mois;
     }
 
-    public function setMois(\DateTimeInterface $mois): static
+    public function setMois(string $mois): static
     {
-        $this->mois = $mois;
+        $this->mois = DateTime::createFromFormat('Ym', $mois);
+        if ($this->mois === false) {
+            throw new Exception("Invalid date format for mois: $mois");
+        }
 
         return $this;
     }
@@ -93,12 +99,12 @@ class FicheFrais
         return $this;
     }
 
-    public function getDateModif(): ?\DateTimeInterface
+    public function getDateModif(): ?DateTimeInterface
     {
         return $this->dateModif;
     }
 
-    public function setDateModif(\DateTimeInterface $dateModif): static
+    public function setDateModif(DateTimeInterface $dateModif): static
     {
         $this->dateModif = $dateModif;
 
@@ -187,5 +193,9 @@ class FicheFrais
         }
 
         return $this;
+    }
+
+    public function setOldId($id)
+    {
     }
 }

@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fiche Frais index{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-bold mb-4">Fiche Frais index</h1>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full bg-white border border-gray-300">
+            <thead>
+            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
+                <th class="py-2 px-3 text-left">Id</th>
+                <th class="py-2 px-3 text-left">Mois</th>
+                <th class="py-2 px-3 text-left">Nb Justificatifs</th>
+                <th class="py-2 px-3 text-left">Montant Valid</th>
+                <th class="py-2 px-3 text-left">Date Modif</th>
+                <th class="py-2 px-3 text-left">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="text-gray-600 text-sm font-light">
+            {% for fiche_frai in fiche_frais %}
+                <tr class="border-b border-gray-200 hover:bg-gray-100">
+                    <td class="py-2 px-3">{{ fiche_frai.id }}</td>
+                    <td class="py-2 px-3">{{ fiche_frai.mois ? fiche_frai.mois|date('Y-m-d') : '' }}</td>
+                    <td class="py-2 px-3">{{ fiche_frai.nbJustificatifs }}</td>
+                    <td class="py-2 px-3">{{ fiche_frai.montantValid }}</td>
+                    <td class="py-2 px-3">{{ fiche_frai.dateModif ? fiche_frai.dateModif|date('Y-m-d H:i:s') : '' }}</td>
+                    <td class="py-2 px-3">
+                        <a href="{{ path('app_fiche_frais_show', {'id': fiche_frai.id}) }}" class="text-blue-500 hover:text-blue-700">show</a>
+                        <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frai.id}) }}" class="text-blue-500 hover:text-blue-700 ml-2">edit</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center py-3">no records found</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{{ path('app_fiche_frais_new') }}" class="mt-4 inline-block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Create new</a>
+{% endblock %}

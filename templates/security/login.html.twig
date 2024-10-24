@@ -15,21 +15,21 @@
             </div>
         {% endif %}
 
-        <h1 class="text-2xl font-bold mb-6">Please sign in</h1>
+        <h1 class="text-2xl font-bold mb-6">Veuillez vous authentifier</h1>
         <label for="inputEmail" class="block text-sm font-medium text-gray-700">Email</label>
         <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" autocomplete="email" required autofocus>
-        <label for="inputPassword" class="block text-sm font-medium text-gray-700 mt-4">Password</label>
+        <label for="inputPassword" class="block text-sm font-medium text-gray-700 mt-4">Mot de passe</label>
         <input type="password" name="password" id="inputPassword" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" autocomplete="current-password" required>
 
         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
 
         <div class="flex items-center mt-4">
             <input type="checkbox" name="_remember_me" id="remember_me" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
-            <label for="remember_me" class="ml-2 block text-sm text-gray-900"> Remember me </label>
+            <label for="remember_me" class="ml-2 block text-sm text-gray-900"> Se rappeler de moi ? </label>
         </div>
 
         <button class="w-full mt-6 bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" type="submit">
-            Sign in
+            Se connecter
         </button>
     </form>
 </div>

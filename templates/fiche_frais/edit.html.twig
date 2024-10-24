@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit FicheFrais{% endblock %}
+
+{% block body %}
+    <h1 class="text-2xl font-bold mb-6">Edit Fiche Frais</h1>
+
+    <div class="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+        <h2 class="text-xl font-semibold mb-4">Modifier la Fiche de Frais</h2>
+
+        <!-- Section pour le mois -->
+        <div class="mb-4">
+            <h3 class="font-semibold text-lg mb-2">Mois</h3>
+            {{ form_row(form.mois, {'attr': {'class': 'border rounded-lg p-2 w-full'}}) }}
+        </div>
+
+        <!-- Section pour le nombre de justificatifs -->
+        <div class="mb-4">
+            <h3 class="font-semibold text-lg mb-2">Nombre de Justificatifs</h3>
+            {{ form_row(form.nbJustificatifs, {'attr': {'class': 'border rounded-lg p-2 w-full'}}) }}
+        </div>
+
+        <!-- Section pour le montant valid -->
+        <div class="mb-4">
+            <h3 class="font-semibold text-lg mb-2">Montant Valid</h3>
+            {{ form_row(form.montantValid, {'attr': {'class': 'border rounded-lg p-2 w-full'}}) }}
+        </div>
+
+        <!-- Section pour la date de modification -->
+        <div class="mb-4">
+            <h3 class="font-semibold text-lg mb-2">Date de Modification</h3>
+            {{ form_row(form.dateModif, {'attr': {'class': 'border rounded-lg p-2 w-full'}}) }}
+        </div>
+
+        <div class="mt-6">
+            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                Update
+            </button>
+            <a href="{{ path('app_fiche_frais_index') }}" class="inline-block bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded ml-4">Back to list</a>
+            <a href="{{ path('app_fiche_frais_delete', {'id': fiche_frai.id}) }}" class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">Delete</a>
+        </div>
+    </div>
+{% endblock %}

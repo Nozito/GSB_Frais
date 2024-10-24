@@ -3,16 +3,18 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Scheb\TwoFactorBundle\Model\Google\TwoFactorInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-class User implements UserInterface, PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface, TwoFactorInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -50,13 +52,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $ville = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $dateEmbauche = null;
+    private ?DateTimeInterface $dateEmbauche = null;
+
+    #[ORM\Column]
+    private bool $isVerified = false;
+
+    #[ORM\Column(type: 'string', nullable: true)]
+    private ?string $googleAuthenticatorSecret = null;
+
+    #[ORM\Column(type: 'boolean')]
+    private bool $isTwoFactorEnabled = false;
 
     /**
      * @var Collection<int, FicheFrais>
      */
     #[ORM\OneToMany(targetEntity: FicheFrais::class, mappedBy: 'user')]
     private Collection $fichefrais;
+
+    #[ORM\Column(length: 100)]
+    private ?string $old_id = null;
 
     public function __construct()
     {
@@ -98,7 +112,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -198,12 +211,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getDateEmbauche(): ?\DateTimeInterface
+    public function getDateEmbauche(): ?DateTimeInterface
     {
         return $this->dateEmbauche;
     }
 
-    public function setDateEmbauche(\DateTimeInterface $dateEmbauche): static
+    public function setDateEmbauche(DateTimeInterface $dateEmbauche): static
     {
         $this->dateEmbauche = $dateEmbauche;
 
@@ -231,11 +244,68 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeFichefrai(FicheFrais $fichefrai): static
     {
         if ($this->fichefrais->removeElement($fichefrai)) {
-            // set the owning side to null (unless already changed)
             if ($fichefrai->getUser() === $this) {
                 $fichefrai->setUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getOldId(): ?string
+    {
+        return $this->old_id;
+    }
+
+    public function setOldId(string $old_id): static
+    {
+        $this->old_id = $old_id;
+
+        return $this;
+    }
+
+    public function isVerified(): bool
+    {
+        return $this->isVerified;
+    }
+
+    public function setVerified(bool $isVerified): static
+    {
+        $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function isGoogleAuthenticatorEnabled(): bool
+    {
+        return $this->googleAuthenticatorSecret !== null;
+    }
+
+    public function getGoogleAuthenticatorUsername(): string
+    {
+        return $this->email;
+    }
+
+    public function getGoogleAuthenticatorSecret(): ?string
+    {
+        return $this->googleAuthenticatorSecret;
+    }
+
+    public function setGoogleAuthenticatorSecret(?string $secret): self
+    {
+        $this->googleAuthenticatorSecret = $secret;
+
+        return $this;
+    }
+
+    public function isTwoFactorEnabled(): bool
+    {
+        return $this->isTwoFactorEnabled;
+    }
+
+    public function setTwoFactorEnabled(bool $enabled): self
+    {
+        $this->isTwoFactorEnabled = $enabled;
 
         return $this;
     }
