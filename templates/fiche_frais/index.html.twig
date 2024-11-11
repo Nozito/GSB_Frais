@@ -1,43 +1,80 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Fiche Frais index{% endblock %}
+{% block title %}Gestion des Fiches de Frais{% endblock %}
 
 {% block body %}
-    <h1 class="text-2xl font-bold mb-4">Fiche Frais index</h1>
+    <div class="container mx-auto py-8 px-4">
+        <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center">Gestion des Fiches de Frais</h1>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full bg-white border border-gray-300">
-            <thead>
-            <tr class="bg-gray-200 text-gray-600 uppercase text-sm leading-normal">
-                <th class="py-2 px-3 text-left">Id</th>
-                <th class="py-2 px-3 text-left">Mois</th>
-                <th class="py-2 px-3 text-left">Nb Justificatifs</th>
-                <th class="py-2 px-3 text-left">Montant Valid</th>
-                <th class="py-2 px-3 text-left">Date Modif</th>
-                <th class="py-2 px-3 text-left">Actions</th>
-            </tr>
-            </thead>
-            <tbody class="text-gray-600 text-sm font-light">
-            {% for fiche_frai in fiche_frais %}
-                <tr class="border-b border-gray-200 hover:bg-gray-100">
-                    <td class="py-2 px-3">{{ fiche_frai.id }}</td>
-                    <td class="py-2 px-3">{{ fiche_frai.mois ? fiche_frai.mois|date('Y-m-d') : '' }}</td>
-                    <td class="py-2 px-3">{{ fiche_frai.nbJustificatifs }}</td>
-                    <td class="py-2 px-3">{{ fiche_frai.montantValid }}</td>
-                    <td class="py-2 px-3">{{ fiche_frai.dateModif ? fiche_frai.dateModif|date('Y-m-d H:i:s') : '' }}</td>
-                    <td class="py-2 px-3">
-                        <a href="{{ path('app_fiche_frais_show', {'id': fiche_frai.id}) }}" class="text-blue-500 hover:text-blue-700">show</a>
-                        <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frai.id}) }}" class="text-blue-500 hover:text-blue-700 ml-2">edit</a>
-                    </td>
-                </tr>
-            {% else %}
-                <tr>
-                    <td colspan="6" class="text-center py-3">no records found</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <!-- Formulaire de sélection du mois -->
+        <div class="max-w-lg mx-auto mb-10 p-6 bg-white shadow-lg rounded-lg">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Sélectionner un Mois</h2>
+            <p>Moins sélectionné : {{ form.mois.vars.data }}</p>
+            {{ form_start(form) }}
+            <div class="mb-6">
+                {{ form_row(form.mois, {
+                    'attr': {
+                        'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+                    }
+                }) }}
+            </div>
+            <div class="text-center">
+                <button type="submit" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Valider
+                </button>
+            </div>
+            {{ form_end(form) }}
+        </div>
+
+        <!-- Affichage des fiches de frais selon le mois sélectionné -->
+        {% if fiche_frais is not empty %}
+            <div class="overflow-hidden rounded-lg shadow-lg">
+                <table class="min-w-full bg-white border border-gray-300">
+                    <thead class="bg-blue-600 text-white text-sm uppercase font-medium">
+                    <tr>
+                        <th class="py-3 px-4 text-left">Id</th>
+                        <th class="py-3 px-4 text-left">Mois</th>
+                        <th class="py-3 px-4 text-left">Nb Justificatifs</th>
+                        <th class="py-3 px-4 text-left">Montant Validé</th>
+                        <th class="py-3 px-4 text-left">Date Modification</th>
+                        <th class="py-3 px-4 text-left">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-gray-700 text-sm divide-y divide-gray-200">
+                    {% for fiche_frai in fiche_frais %}
+                        <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
+                            <td class="py-3 px-4">{{ fiche_frai.id }}</td>
+                            <td class="py-3 px-4">{{ fiche_frai.mois ? fiche_frai.mois|date('F Y') : '' }}</td>
+                            <td class="py-3 px-4">{{ fiche_frai.nbJustificatifs }}</td>
+                            <td class="py-3 px-4">{{ fiche_frai.montantValid|number_format(2, ',', ' ') }}</td>
+                            <td class="py-3 px-4">{{ fiche_frai.dateModif ? fiche_frai.dateModif|date('d/m/Y') : '' }}</td>
+                            <td class="py-3 px-4">
+                                <a href="{{ path('app_fiche_frais_show', {'id': fiche_frai.id}) }}"
+                                   class="text-blue-500 hover:text-blue-700 transition duration-200">Voir</a>
+                                <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frai.id}) }}"
+                                   class="text-green-500 hover:text-green-700 ml-4 transition duration-200">Modifier</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="py-4 text-center text-gray-500">Aucune fiche de frais pour ce mois.</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="mt-6 text-center">
+                <p class="text-lg text-gray-500">Veuillez sélectionner un mois pour afficher les fiches de frais.</p>
+            </div>
+        {% endif %}
+
+        <!-- Bouton d'ajout de fiche -->
+        <div class="mt-6 text-center">
+            <a href="{{ path('app_fiche_frais_new') }}"
+               class="bg-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-600 transition duration-200">
+                Ajouter une nouvelle fiche de frais
+            </a>
+        </div>
     </div>
-
-    <a href="{{ path('app_fiche_frais_new') }}" class="mt-4 inline-block bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700">Create new</a>
 {% endblock %}

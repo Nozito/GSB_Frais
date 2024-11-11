@@ -4,10 +4,10 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" packagePrefix="App\" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="App\Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/spec" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/var" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/bacon/bacon-qr-code" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
-      <excludeFolder url="file://$MODULE_DIR$/vendor/dasprid/enum" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/cache" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/collections" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine/dbal" />
@@ -142,6 +142,23 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/twig/extra-bundle" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/twig/twig" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart/assert" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/dbal" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/deprecations" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/doctrine-migrations-bundle" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/event-manager" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/inflector" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/instantiator" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/lexer" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/migrations" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/doctrine 2/persistence" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/egulias 2/email-validator" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/phpstan 2/phpdoc-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/phpunit 2/php-file-iterator" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian 2/cli-parser" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian 2/code-unit" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian 2/comparator" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian 2/version" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart 2/assert" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
