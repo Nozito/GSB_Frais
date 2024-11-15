@@ -165,6 +165,7 @@
       <path value="$PROJECT_DIR$/vendor/doctrine 2/dbal" />
       <path value="$PROJECT_DIR$/vendor/doctrine 2/event-manager" />
       <path value="$PROJECT_DIR$/vendor/doctrine 2/instantiator" />
+      <path value="$PROJECT_DIR$/vendor/dasprid/enum" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />

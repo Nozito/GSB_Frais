@@ -3,135 +3,123 @@
 namespace App\Controller;
 
 use App\Entity\FicheFrais;
-use App\Form\MoisType;
+use App\Entity\User;
 use App\Form\FicheFraisType;
+use App\Form\MoisType;
 use App\Repository\FicheFraisRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use \IntlDateFormatter;
 
 #[Route('/fiche/frais')]
 final class FicheFraisController extends AbstractController
 {
-    #[Route(name: 'app_fiche_frais_index', methods: ['GET', 'POST'])]
-    public function index(FicheFraisRepository $ficheFraisRepository, Request $request): Response
+    private EntityManagerInterface $entityManager;
+    private FicheFraisRepository $ficheFraisRepository;
+
+    public function __construct(EntityManagerInterface $entityManager, FicheFraisRepository $ficheFraisRepository)
     {
-        $user = $this->getUser(); // Récupère l'utilisateur connecté
+        $this->entityManager = $entityManager;
+        $this->ficheFraisRepository = $ficheFraisRepository;
+    }
 
-        // Récupère les mois distincts pour l'utilisateur
-        $moisDisponibles = $ficheFraisRepository->findDistinctMoisByUser($user);
+    #[Route('/', name: 'app_fiche_frais_index', methods: ['GET', 'POST'])]
+    public function index(Request $request): Response
+    {
+        $user = $this->getUser();
+        $fichefrais = null;
 
-        // Utilise IntlDateFormatter pour afficher les mois en français
-        $formatter = new \IntlDateFormatter('fr_FR', \IntlDateFormatter::FULL, \IntlDateFormatter::NONE);
-        $formatter->setPattern('MMMM yyyy'); // Exemple : "janvier 2023"
-
-        $moisChoices = array_combine(
-            array_map(fn($item) => $formatter->format($item['mois']), $moisDisponibles),
-            array_map(fn($item) => $item['mois']->format('Y-m'), $moisDisponibles)
-        );
-
-        // Crée le formulaire
-        $form = $this->createForm(MoisType::class, null, [
-            'mois_choices' => $moisChoices,
-        ]);
-
-        $form->handleRequest($request);
-
-        // Vérifier la donnée du mois
-        if ($form->isSubmitted() && $form->isValid()) {
-            $selectedMois = $form->get('mois')->getData(); // Récupère la valeur 'Y-m'
-            dump($selectedMois); // Log pour vérifier la valeur de mois
-
-            // Convertir le mois sélectionné en DateTime
-            $dateMois = \DateTime::createFromFormat('Y-m', $selectedMois);
-
-            if ($dateMois) {
-                // Log pour vérifier la conversion du mois
-                dump($dateMois);
-
-                // Filtrer les fiches de frais pour ce mois
-                $ficheFrais = $ficheFraisRepository->findBy([
-                    'user' => $user,
-                    'mois' => $dateMois,
-                ]);
-
-                // Log pour vérifier les fiches récupérées
-                dump($ficheFrais);
-            }
-
-            // Si pas de fiche trouvée, ajouter un message d'erreur
-            if (empty($ficheFrais)) {
-                $this->addFlash('warning', 'Aucune fiche de frais trouvée pour ce mois.');
-            }
-
-            return $this->render('fiche_frais/index.html.twig', [
-                'fiche_frais' => $ficheFrais,
-                'form' => $form->createView(),
-            ]);
+        if (!$user instanceof User) {
+            throw $this->createAccessDeniedException('Utilisateur non valide.');
         }
 
-        // Si le formulaire n'est pas soumis ou invalide
+        $ficheFraisList = $this->ficheFraisRepository->findBy(['user' => $user]);
+
+
+        $form = $this->createForm(MoisType::class, null, [
+            'fiche_frais_collection' => $ficheFraisList,
+        ]);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $fichefrais = $form->get('ficheFrais')->getData();
+            //dd($fichefrais);
+
+            if (!$fichefrais instanceof FicheFrais) {
+                throw new \LogicException('La sélection n\'est pas valide.');
+            }
+        }
+
         return $this->render('fiche_frais/index.html.twig', [
-            'fiche_frais' => [],  // Aucune fiche à afficher au départ
             'form' => $form->createView(),
+            'fichefrais' => $fichefrais,
         ]);
     }
 
     #[Route('/new', name: 'app_fiche_frais_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $entityManager): Response
+    public function new(Request $request): Response
     {
-        $ficheFrai = new FicheFrais();
-        $form = $this->createForm(FicheFraisType::class, $ficheFrai);
+        $ficheFrais = new FicheFrais();
+        $form = $this->createForm(FicheFraisType::class, $ficheFrais);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->persist($ficheFrai);
-            $entityManager->flush();
+            // Lier la fiche à l'utilisateur connecté
+            $ficheFrais->setUser($this->getUser());
+            $this->entityManager->persist($ficheFrais);
+            $this->entityManager->flush();
 
+            $this->addFlash('success', 'Fiche de frais créée avec succès.');
             return $this->redirectToRoute('app_fiche_frais_index');
         }
 
         return $this->render('fiche_frais/new.html.twig', [
-            'fiche_frai' => $ficheFrai,
+            'fiche_frais' => $ficheFrais,
             'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_fiche_frais_show', methods: ['GET'])]
-    public function show(FicheFrais $ficheFrai): Response
+    public function show(FicheFrais $ficheFrais): Response
     {
         return $this->render('fiche_frais/show.html.twig', [
-            'fiche_frai' => $ficheFrai,
+            'fiche_frais' => $ficheFrais,
         ]);
     }
 
     #[Route('/{id}/edit', name: 'app_fiche_frais_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, FicheFrais $ficheFrai, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, FicheFrais $ficheFrais): Response
     {
-        $form = $this->createForm(FicheFraisType::class, $ficheFrai);
+        $form = $this->createForm(FicheFraisType::class, $ficheFrais);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager->flush();
+            $this->entityManager->flush();
 
+            $this->addFlash('success', 'Fiche de frais modifiée avec succès.');
             return $this->redirectToRoute('app_fiche_frais_index');
         }
 
         return $this->render('fiche_frais/edit.html.twig', [
-            'fiche_frai' => $ficheFrai,
+            'fiche_frais' => $ficheFrais,
             'form' => $form->createView(),
         ]);
     }
 
     #[Route('/{id}', name: 'app_fiche_frais_delete', methods: ['POST'])]
-    public function delete(Request $request, FicheFrais $ficheFrai, EntityManagerInterface $entityManager): Response
+    public function delete(Request $request, FicheFrais $ficheFrais): Response
     {
-        if ($this->isCsrfTokenValid('delete' . $ficheFrai->getId(), $request->request->get('_token'))) {
-            $entityManager->remove($ficheFrai);
-            $entityManager->flush();
+        // Vérification CSRF pour la suppression
+        if ($this->isCsrfTokenValid('delete' . $ficheFrais->getId(), $request->request->get('_token'))) {
+            $this->entityManager->remove($ficheFrais);
+            $this->entityManager->flush();
+
+            $this->addFlash('success', 'Fiche de frais supprimée avec succès.');
+        } else {
+            $this->addFlash('error', 'Token CSRF invalide.');
         }
 
         return $this->redirectToRoute('app_fiche_frais_index');

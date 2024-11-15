@@ -1,23 +1,44 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Gestion des Fiches de Frais{% endblock %}
-
 {% block body %}
     <div class="container mx-auto py-8 px-4">
         <h1 class="text-4xl font-extrabold text-gray-800 mb-8 text-center">Gestion des Fiches de Frais</h1>
 
-        <!-- Formulaire de sélection du mois -->
         <div class="max-w-lg mx-auto mb-10 p-6 bg-white shadow-lg rounded-lg">
             <h2 class="text-2xl font-semibold text-gray-800 mb-4">Sélectionner un Mois</h2>
-            <p>Moins sélectionné : {{ form.mois.vars.data }}</p>
-            {{ form_start(form) }}
+
+            <p>
+                Fiche de frais sélectionnée :
+                {% if fichefrais is not null %}
+                    <span class="font-semibold text-blue-500">
+                    Mois : {{ fichefrais.mois|date('F Y') }}
+                </span>
+                {% else %}
+                    <span class="font-semibold text-gray-500">Aucun mois sélectionné</span>
+                {% endif %}
+            </p>
+
+            {% dump(fichefrais) %}
+
+            {{ form_start(form, {method: 'POST'}) }}
             <div class="mb-6">
-                {{ form_row(form.mois, {
+                {{ form_row(form.ficheFrais, {
                     'attr': {
                         'class': 'block w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
                     }
                 }) }}
             </div>
+
+            {% if form.ficheFrais.vars.errors|length > 0 %}
+                <div class="text-red-500 mt-2">
+                    <ul>
+                        {% for error in form.ficheFrais.vars.errors %}
+                            <li>{{ error.message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
             <div class="text-center">
                 <button type="submit" class="px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     Valider
@@ -26,9 +47,8 @@
             {{ form_end(form) }}
         </div>
 
-        <!-- Affichage des fiches de frais selon le mois sélectionné -->
-        {% if fiche_frais is not empty %}
-            <div class="overflow-hidden rounded-lg shadow-lg">
+        {% if fichefrais is not null %}
+            <div class="overflow-x-auto rounded-lg shadow-lg">
                 <table class="min-w-full bg-white border border-gray-300">
                     <thead class="bg-blue-600 text-white text-sm uppercase font-medium">
                     <tr>
@@ -41,25 +61,21 @@
                     </tr>
                     </thead>
                     <tbody class="text-gray-700 text-sm divide-y divide-gray-200">
-                    {% for fiche_frai in fiche_frais %}
-                        <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
-                            <td class="py-3 px-4">{{ fiche_frai.id }}</td>
-                            <td class="py-3 px-4">{{ fiche_frai.mois ? fiche_frai.mois|date('F Y') : '' }}</td>
-                            <td class="py-3 px-4">{{ fiche_frai.nbJustificatifs }}</td>
-                            <td class="py-3 px-4">{{ fiche_frai.montantValid|number_format(2, ',', ' ') }}</td>
-                            <td class="py-3 px-4">{{ fiche_frai.dateModif ? fiche_frai.dateModif|date('d/m/Y') : '' }}</td>
-                            <td class="py-3 px-4">
-                                <a href="{{ path('app_fiche_frais_show', {'id': fiche_frai.id}) }}"
-                                   class="text-blue-500 hover:text-blue-700 transition duration-200">Voir</a>
-                                <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frai.id}) }}"
-                                   class="text-green-500 hover:text-green-700 ml-4 transition duration-200">Modifier</a>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="6" class="py-4 text-center text-gray-500">Aucune fiche de frais pour ce mois.</td>
-                        </tr>
-                    {% endfor %}
+                    <tr class="hover:bg-gray-100 transition duration-200 ease-in-out">
+                        <td class="py-3 px-4">{{ fichefrais.id }}</td>
+                        <td class="py-3 px-4">{{ fichefrais.mois ? fichefrais.mois|date('F Y') : '' }}</td>
+                        <td class="py-3 px-4">{{ fichefrais.nbJustificatifs }}</td>
+                        <td class="py-3 px-4">{{ fichefrais.montantValid|number_format(2, ',', ' ') }}</td>
+                        <td class="py-3 px-4">{{ fichefrais.dateModif ? fichefrais.dateModif|date('d/m/Y') : '' }}</td>
+                        <td class="py-3 px-4 flex space-x-4">
+                            <a href="{{ path('app_fiche_frais_show', {'id': fichefrais.id}) }}" class="text-blue-500 hover:text-blue-700 transition duration-200">
+                                <i class="fas fa-eye"></i> Voir
+                            </a>
+                            <a href="{{ path('app_fiche_frais_edit', {'id': fichefrais.id}) }}" class="text-green-500 hover:text-green-700 transition duration-200">
+                                <i class="fas fa-edit"></i> Modifier
+                            </a>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -68,13 +84,5 @@
                 <p class="text-lg text-gray-500">Veuillez sélectionner un mois pour afficher les fiches de frais.</p>
             </div>
         {% endif %}
-
-        <!-- Bouton d'ajout de fiche -->
-        <div class="mt-6 text-center">
-            <a href="{{ path('app_fiche_frais_new') }}"
-               class="bg-green-500 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-600 transition duration-200">
-                Ajouter une nouvelle fiche de frais
-            </a>
-        </div>
     </div>
 {% endblock %}

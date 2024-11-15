@@ -12,23 +12,23 @@
                 <tbody class="text-gray-600">
                 <tr class="border-b">
                     <th class="py-2 px-4 text-left">Id</th>
-                    <td class="py-2 px-4">{{ fiche_frai.id }}</td>
+                    <td class="py-2 px-4">{{ fiche_frais.id }}</td>
                 </tr>
                 <tr class="border-b">
                     <th class="py-2 px-4 text-left">Mois</th>
-                    <td class="py-2 px-4">{{ fiche_frai.mois ? fiche_frai.mois|date('Y-m-d') : '' }}</td>
+                    <td class="py-2 px-4">{{ fiche_frais.mois ? fiche_frais.mois|date('Y-m-d') : '' }}</td>
                 </tr>
                 <tr class="border-b">
                     <th class="py-2 px-4 text-left">Nb Justificatifs</th>
-                    <td class="py-2 px-4">{{ fiche_frai.nbJustificatifs }}</td>
+                    <td class="py-2 px-4">{{ fiche_frais.nbJustificatifs }}</td>
                 </tr>
                 <tr class="border-b">
                     <th class="py-2 px-4 text-left">Montant Valid</th>
-                    <td class="py-2 px-4">{{ fiche_frai.montantValid }}</td>
+                    <td class="py-2 px-4">{{ fiche_frais.montantValid }}</td>
                 </tr>
                 <tr class="border-b">
                     <th class="py-2 px-4 text-left">Date Modif</th>
-                    <td class="py-2 px-4">{{ fiche_frai.dateModif ? fiche_frai.dateModif|date('Y-m-d H:i:s') : '' }}</td>
+                    <td class="py-2 px-4">{{ fiche_frais.dateModif ? fiche_frais.dateModif|date('Y-m-d H:i:s') : '' }}</td>
                 </tr>
                 </tbody>
             </table>
@@ -36,8 +36,8 @@
 
         <div class="mt-6">
             <a href="{{ path('app_fiche_frais_index') }}" class="inline-block bg-gray-300 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded">Back to list</a>
-            <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frai.id}) }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">Edit</a>
-            <a href="{{ path('app_fiche_frais_delete', {'id': fiche_frai.id}) }}" class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">Delete</a>
+            <a href="{{ path('app_fiche_frais_edit', {'id': fiche_frais.id}) }}" class="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded ml-2">Edit</a>
+            <a href="{{ path('app_fiche_frais_delete', {'id': fiche_frais.id}) }}" class="inline-block bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded ml-2">Delete</a>
         </div>
     </div>
 {% endblock %}

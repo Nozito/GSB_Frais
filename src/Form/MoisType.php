@@ -1,25 +1,33 @@
 <?php
+
 namespace App\Form;
 
+use App\Entity\FicheFrais;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\FormBuilderInterface;
+use DateTimeInterface;
 
 class MoisType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('mois', ChoiceType::class, [
-            'choices' => $options['mois_choices'],  // Les mois passés du contrôleur
-            'placeholder' => 'Choisissez un mois',  // Ajoute une option de placeholder
+        $ficheFraisCollection = $options['fiche_frais_collection'];
+
+        $builder->add('ficheFrais', ChoiceType::class, [
+            'choices' => $ficheFraisCollection,
+            'choice_label' => function ($ficheFrais) {
+                return $ficheFrais->getMois()->format('F Y');
+            },
+            'placeholder' => 'Sélectionnez une fiche de frais',
+            'label' => 'Choisir une fiche de frais',
         ]);
     }
-
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'mois_choices' => [],  // Valeur par défaut vide
-        ]);
+        $resolver->setRequired('fiche_frais_collection');
+
+        $resolver->setAllowedTypes('fiche_frais_collection', 'array');
     }
 }
