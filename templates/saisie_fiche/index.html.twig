@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container mx-auto px-4 py-8 max-w-5xl">
+        <!-- Carte principale -->
+        <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+            <!-- En-tête -->
+            <div class="bg-gradient-to-r from-blue-600 to-blue-500 text-white p-6 text-center">
+                <h1 class="text-3xl font-bold uppercase">Saisie Fiche de Frais - {{ moisActuel }}</h1>
+            </div>
+
+            <!-- Corps -->
+            <div class="p-8 space-y-10">
+                <!-- Section Frais Forfaitisés -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-calculator mr-2 text-blue-500"></i> Frais Forfaitisés
+                    </h2>
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
+                        {{ form_start(formForfaits, {'attr': {'class': 'space-y-4'}}) }}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for field in [formForfaits.forfaitKm, formForfaits.forfaitEtape, formForfaits.forfaitNuitee, formForfaits.forfaitRepas] %}
+                                <div>
+                                    {{ form_label(field, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+                                    {{ form_widget(field, {'attr': {
+                                        'class': 'block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 focus:outline-none'
+                                    }}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-right mt-6">
+                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-lg transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-save mr-2"></i> Enregistrer Frais Forfaitisés
+                            </button>
+                        </div>
+                        {{ form_end(formForfaits) }}
+                    </div>
+                </section>
+
+                <!-- Section Frais Hors Forfait -->
+                <section>
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+                        <i class="fas fa-receipt mr-2 text-green-500"></i> Frais Hors Forfait
+                    </h2>
+
+                    <!-- Tableau des frais hors forfait -->
+                    <div class="overflow-x-auto mb-8">
+                        <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+                            <thead class="bg-green-500 text-white uppercase text-sm">
+                            <tr>
+                                <th class="px-6 py-3 text-left">Date</th>
+                                <th class="px-6 py-3 text-left">Libellé</th>
+                                <th class="px-6 py-3 text-left">Montant</th>
+                                <th class="px-6 py-3 text-center">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for ligne in lignesFraisHorsForfait %}
+                                <tr class="hover:bg-gray-100 transition">
+                                    <td class="border px-6 py-4">{{ ligne.date|date('d/m/Y') }}</td>
+                                    <td class="border px-6 py-4">{{ ligne.libelle }}</td>
+                                    <td class="border px-6 py-4">{{ ligne.montant }} €</td>
+                                    <td class="border px-6 py-4 text-center">
+                                        <form method="POST" action="{{ path('app_saisie_fiche_delete', {'id': ligne.id}) }}" onsubmit="return confirm('Voulez-vous vraiment supprimer cet élément hors forfait ?');">
+                                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-300">
+                                                <i class="fas fa-trash-alt"></i> Supprimer
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-gray-500 py-4">
+                                        Aucun frais hors forfait enregistré.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Formulaire ajout frais hors forfait -->
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-inner">
+                        {{ form_start(formHorsForfaits, {'attr': {'class': 'space-y-4'}}) }}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {% for field in [formHorsForfaits.date, formHorsForfaits.montant, formHorsForfaits.libelle] %}
+                                <div>
+                                    {{ form_label(field, null, {'label_attr': {'class': 'block text-sm font-semibold text-gray-700'}}) }}
+                                    {{ form_widget(field, {'attr': {
+                                        'class': 'block w-full px-4 py-2 mt-1 text-gray-700 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 focus:outline-none'
+                                    }}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="text-right mt-6">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg transition duration-300 transform hover:scale-105">
+                                <i class="fas fa-plus mr-2"></i> Ajouter Frais Hors Forfait
+                            </button>
+                        </div>
+                        {{ form_end(formHorsForfaits) }}
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+{% endblock %}

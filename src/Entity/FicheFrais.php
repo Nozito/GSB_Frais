@@ -40,13 +40,13 @@ class FicheFrais
     /**
      * @var Collection<int, LigneFraisForfait>
      */
-    #[ORM\OneToMany(targetEntity: LigneFraisForfait::class, mappedBy: 'fichesFrais')]
+    #[ORM\OneToMany(targetEntity: LigneFraisForfait::class, mappedBy: 'fichesFrais', fetch: 'EAGER')]
     private Collection $lignefraisforfaits;
 
     /**
      * @var Collection<int, LigneFraisHorsForfait>
      */
-    #[ORM\OneToMany(targetEntity: LigneFraisHorsForfait::class, mappedBy: 'fichesFrais')]
+    #[ORM\OneToMany(targetEntity: LigneFraisHorsForfait::class, mappedBy: 'fichesFrais', fetch: 'EAGER')]
     private Collection $lignesfraishorsforfait;
 
     public function __construct()
@@ -65,12 +65,9 @@ class FicheFrais
         return $this->mois;
     }
 
-    public function setMois(string $mois): static
+    public function setMois(\DateTimeInterface $mois): static
     {
-        $this->mois = DateTime::createFromFormat('Ym', $mois);
-        if ($this->mois === false) {
-            throw new Exception("Invalid date format for mois: $mois");
-        }
+        $this->mois = $mois;
 
         return $this;
     }

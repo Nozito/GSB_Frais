@@ -3,6 +3,7 @@
 {% block title %}GSB - Bienvenue{% endblock %}
 
 {% block body %}
+
     <div class="min-h-screen bg-gray-100 flex items-center justify-center">
         <div class="max-w-4xl w-full bg-white rounded-lg shadow-md p-6">
             <div class="text-center">
@@ -16,6 +17,9 @@
                 </a>
                 <a href="{{ path('app_fiche_frais_index')}}" class="bg-gray-300 text-gray-800 px-6 py-3 rounded-md hover:bg-gray-400 transition ml-4">
                     Voir les fiches de frais
+                </a>
+                <a href="{{ path('app_saisie_fiche') }} " class="bg-gray-300 text-gray-800 px-6 py-3 rounded-md hover:bg-gray-400 transition ml-4">
+                    Saisir une fiche de frais
                 </a>
             </div>
         </div>

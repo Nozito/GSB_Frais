@@ -10,6 +10,7 @@ use App\Entity\LigneFraisHorsForfait;
 use App\Entity\User;
 use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -40,9 +41,9 @@ class ImportDataController extends AbstractController
             $user->setOldId($item->id);
             $user->setNom($item->nom);
             $user->setPrenom($item->prenom);
-            $user->setPassword($this->passwordHasher->encodePassword($user, $item->mdp)); // Hash the password here
-            $user->setAdresse($item->adresse);
+            $user->setPassword($this->passwordHasher->hashPassword($user, $item->mdp)); // Hash the password here            $user->setAdresse($item->adresse);
             $user->setCp($item->cp);
+            $user->setAdresse($item->adresse);
             $user->setVille($item->ville);
             $user->setDateEmbauche(new DateTime($item->dateEmbauche));
             $email = strtolower($item->prenom . '.' . $item->nom . '@gsb.ch');
@@ -130,40 +131,46 @@ class ImportDataController extends AbstractController
         $entityManager = $this->doctrine->getManager();
 
         foreach ($data as $item) {
-            $ficheFrais = $this->doctrine->getRepository(FicheFrais::class)->findOneBy([
-                'user' => $this->doctrine->getRepository(User::class)->findOneBy(['old_id' => $item->idVisiteur]),
-                'mois' => $item->mois
-            ]);
+            $user = $this->doctrine->getRepository(User::class)->findOneBy(['old_id' => $item->idVisiteur]);
+            $mois = DateTime::createFromFormat('Ym', $item->mois);
 
-            if ($ficheFrais) {
-                $ligneFrais = new LigneFraisForfait();
+            if ($user && $mois) {
+                $ficheFrais = $this->doctrine->getRepository(FicheFrais::class)->findOneBy([
+                    'user' => $user,
+                    'mois' => $mois
+                ]);
 
-                // Associer la fiche de frais avec la ligne
-                $ligneFrais->setFichesFrais($ficheFrais);
+                if ($ficheFrais) {
+                    $ligneFrais = new LigneFraisForfait();
 
-                switch ($item->idFraisForfait) {
-                    case 'ETP':
-                        $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 1]));
-                        break;
+                    $ligneFrais->setFichesFrais($ficheFrais);
 
-                    case 'KM':
-                        $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 2]));
-                        break;
+                    switch ($item->idFraisForfait) {
+                        case 'ETP':
+                            $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 1]));
+                            break;
 
-                    case 'NUI':
-                        $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 3]));
-                        break;
+                        case 'KM':
+                            $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 2]));
+                            break;
 
-                    case 'REP':
-                        $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 4]));
-                        break;
+                        case 'NUI':
+                            $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 3]));
+                            break;
+
+                        case 'REP':
+                            $ligneFrais->setFraisForfaits($this->doctrine->getRepository(FraisForfait::class)->findOneBy(['id' => 4]));
+                            break;
+                    }
+
+                    $ligneFrais->setQuantite($item->quantite);
+
+                    $entityManager->persist($ligneFrais);
+                } else {
+                    throw new Exception('FicheFrais not found for idVisiteur: ' . $item->idVisiteur . ' and mois: ' . $item->mois);
                 }
-
-                $ligneFrais->setQuantite($item->quantite);
-
-                $entityManager->persist($ligneFrais);
             } else {
-                throw new Exception('FicheFrais not found for idVisiteur: ' . $item->idVisiteur . ' and mois: ' . $item->mois);
+                throw new Exception('User not found for idVisiteur: ' . $item->idVisiteur . ' or invalid mois format: ' . $item->mois);
             }
         }
 

@@ -3,11 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\FicheFrais;
-use App\Entity\User;
 use App\Form\FicheFraisType;
 use App\Form\MoisType;
 use App\Repository\FicheFraisRepository;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,32 +28,35 @@ final class FicheFraisController extends AbstractController
     public function index(Request $request): Response
     {
         $user = $this->getUser();
-        $fichefrais = null;
-
-        if (!$user instanceof User) {
-            throw $this->createAccessDeniedException('Utilisateur non valide.');
-        }
-
-        $ficheFraisList = $this->ficheFraisRepository->findBy(['user' => $user]);
-
+        $ficheFraisCollection = $this->ficheFraisRepository->findBy(['user' => $user]);
 
         $form = $this->createForm(MoisType::class, null, [
-            'fiche_frais_collection' => $ficheFraisList,
+            'ficheFraisCollection' => $ficheFraisCollection, // Transmettre la collection des fiches de frais
         ]);
+
         $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $fichefrais = $form->get('ficheFrais')->getData();
-            //dd($fichefrais);
+        $selectedFicheFrais = null;
+        $ligneFraisForfait = null;
+        $ligneFraisHorsForfait = null;
 
-            if (!$fichefrais instanceof FicheFrais) {
-                throw new \LogicException('La sélection n\'est pas valide.');
+        if ($form->isSubmitted() && $form->isValid()) {
+            $ficheFraisId = $form->get('mois')->getData();
+            if ($ficheFraisId) {
+                $selectedFicheFrais = $this->ficheFraisRepository->find($ficheFraisId);
+                $ligneFraisForfait = $selectedFicheFrais?->getLignefraisforfaits();
+                $ligneFraisHorsForfait = $selectedFicheFrais?->getLignesfraishorsforfait();
+                //dd($selectedFicheFrais);
+            } else {
+                $this->addFlash('error', 'Aucun mois sélectionné');
             }
         }
 
         return $this->render('fiche_frais/index.html.twig', [
-            'form' => $form->createView(),
-            'fichefrais' => $fichefrais,
+            'form' => $form,
+            'selectedFicheFrais' => $selectedFicheFrais,
+            'ligneFraisForfait' => $ligneFraisForfait,
+            'ligneFraisHorsForfait' => $ligneFraisHorsForfait,
         ]);
     }
 

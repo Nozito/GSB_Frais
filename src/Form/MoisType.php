@@ -2,32 +2,64 @@
 
 namespace App\Form;
 
-use App\Entity\FicheFrais;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use DateTimeInterface;
 
 class MoisType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
-        $ficheFraisCollection = $options['fiche_frais_collection'];
+        $choices = [];
+        $formatter = new \IntlDateFormatter(
+            'fr_FR',
+            \IntlDateFormatter::FULL,
+            \IntlDateFormatter::NONE,
+            'Europe/Paris',
+            \IntlDateFormatter::GREGORIAN,
+            'MMMM yyyy'
+        );
 
-        $builder->add('ficheFrais', ChoiceType::class, [
-            'choices' => $ficheFraisCollection,
-            'choice_label' => function ($ficheFrais) {
-                return $ficheFrais->getMois()->format('F Y');
-            },
-            'placeholder' => 'Sélectionnez une fiche de frais',
-            'label' => 'Choisir une fiche de frais',
+        // Traductions pour les mois (à éviter de faire manuellement si possible)
+        $translations = [
+            'January' => 'janvier',
+            'February' => 'février',
+            'March' => 'mars',
+            'April' => 'avril',
+            'May' => 'mai',
+            'June' => 'juin',
+            'July' => 'juillet',
+            'August' => 'août',
+            'September' => 'septembre',
+            'October' => 'octobre',
+            'November' => 'novembre',
+            'December' => 'décembre'
+        ];
+
+        // Création des choix pour le champ "mois"
+        foreach ($options['ficheFraisCollection'] as $ficheFrais) {
+            $moisLabel = ucfirst($formatter->format($ficheFrais->getMois()->getTimestamp()));
+            // Traduction manuelle
+            $moisLabel = ucfirst(strtr($moisLabel, $translations));
+            // Utilisation de l'ID de la fiche pour la valeur
+            $choices[$moisLabel] = $ficheFrais->getId();
+        }
+
+        // Ajout du champ "mois" au formulaire avec les choix
+        $builder->add('mois', ChoiceType::class, [
+            'choices' => $choices,
+            'required' => true,
+            'label' => 'Sélectionnez un mois',
+            'placeholder' => 'Choisir un mois',
         ]);
     }
-    public function configureOptions(OptionsResolver $resolver)
-    {
-        $resolver->setRequired('fiche_frais_collection');
 
-        $resolver->setAllowedTypes('fiche_frais_collection', 'array');
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        // Définir l'option par défaut
+        $resolver->setDefaults([
+            'ficheFraisCollection' => [],
+        ]);
     }
 }

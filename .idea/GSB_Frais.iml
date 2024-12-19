@@ -160,6 +160,7 @@
       <excludeFolder url="file://$MODULE_DIR$/vendor/sebastian 2/version" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/webmozart 2/assert" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/dasprid/enum" />
+      <excludeFolder url="file://$MODULE_DIR$/vendor/symfony/security-http 2" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
