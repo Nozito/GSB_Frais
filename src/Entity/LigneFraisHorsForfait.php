@@ -83,6 +83,10 @@ class LigneFraisHorsForfait
         return $this;
     }
 
+    public function getFichesFrais(): ?FicheFrais
+    {
+        return $this->fichesFrais;
+    }
     public function setFichesFrais(?FicheFrais $fichesFrais): static
     {
         $this->fichesFrais = $fichesFrais;

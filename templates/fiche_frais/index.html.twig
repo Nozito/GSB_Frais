@@ -7,7 +7,6 @@
 
         <div class="bg-blue-600 p-6 rounded-lg shadow-lg text-white">
             <h1 class="text-2xl font-semibold mb-4 text-center">Rechercher une fiche de frais</h1>
-            {# Utilisation de data-turbo-frame pour soumettre le formulaire dans un frame turbo spécifique #}
             {{ form_start(form, {'attr': {'class': 'flex items-center flex-col sm:flex-row', 'data-turbo-frame': 'the_frame_fiche'}}) }}
             <div class="flex-grow mr-4 mb-4 sm:mb-0">
                 {{ form_row(form.mois, {'attr': {'class': 'w-full bg-blue-50 text-gray-700 border-blue-400 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500'}}) }}
@@ -19,7 +18,6 @@
             {{ form_end(form) }}
         </div>
 
-        {# Turbo Frame pour la fiche de frais sélectionnée #}
         <turbo-frame id="the_frame_fiche">
             {% if selectedFicheFrais is not null %}
                 <div class="mt-8 bg-white p-6 border border-blue-200 rounded-lg shadow-lg">
@@ -47,6 +45,7 @@
                         <tr>
                             <th class="border-b py-2 text-gray-600">Type</th>
                             <th class="border-b py-2 text-gray-600 text-right">Quantité</th>
+                            <th class="border-b py-2 text-gray-600 text-right">Montant</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -54,34 +53,23 @@
                             <tr class="hover:bg-blue-100">
                                 <td class="py-2 border-b">{{ ligneFraisForfait.fraisForfaits.libelle }}</td>
                                 <td class="py-2 border-b text-right">{{ ligneFraisForfait.quantite }}</td>
+                                <td class="py-2 border-b text-right">{{ ligneFraisForfait.fraisForfaits.montant * ligneFraisForfait.quantite | number_format(2, ',', ' ') }} €</td>
                             </tr>
                         {% endfor %}
                         </tbody>
-                    </table>
-                </div>
-
-                <div class="mt-8 bg-white p-6 border border-blue-200 rounded-lg shadow-lg">
-                    <h3 class="text-xl font-semibold text-blue-600 mb-4">Frais Hors Forfaitisés</h3>
-                    <table class="w-full text-left border-collapse">
-                        <thead>
+                        <tfoot>
                         <tr>
-                            <th class="border-b py-2 text-gray-600">Description</th>
-                            <th class="border-b py-2 text-gray-600 text-right">Montant</th>
+                            <td colspan="2" class="py-2 text-right font-semibold">Total des frais forfaitisés :</td>
+                            <td class="py-2 text-right font-semibold">{{ montantTotalForfait | number_format(2, ',', ' ') }} €</td>
+                            <h3>Montants par type :</h3>
+                            <ul>
+                                {% for type, montant in montantsParType %}
+                                <li>{{ type }} : {{ montant }}</li>
+                                {% endfor %}
+                            </ul>
                         </tr>
-                        </thead>
-                        <tbody>
-                        {% for ligneFraisHorsForfait in selectedFicheFrais.lignesfraishorsforfait %}
-                            <tr class="hover:bg-blue-100">
-                                <td class="py-2 border-b">{{ ligneFraisHorsForfait.libelle }}</td>
-                                <td class="py-2 border-b text-right">{{ ligneFraisHorsForfait.montant|number_format(2, ',', ' ') }} €</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
+                        </tfoot>
                     </table>
-                </div>
-            {% else %}
-                <div class="mt-8 text-center">
-                    <p class="text-white">Veuillez sélectionner un mois pour voir la fiche correspondante.</p>
                 </div>
             {% endif %}
         </turbo-frame>

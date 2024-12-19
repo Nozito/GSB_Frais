@@ -31,22 +31,27 @@ final class FicheFraisController extends AbstractController
         $ficheFraisCollection = $this->ficheFraisRepository->findBy(['user' => $user]);
 
         $form = $this->createForm(MoisType::class, null, [
-            'ficheFraisCollection' => $ficheFraisCollection, // Transmettre la collection des fiches de frais
+            'ficheFraisCollection' => $ficheFraisCollection,
         ]);
 
         $form->handleRequest($request);
 
         $selectedFicheFrais = null;
-        $ligneFraisForfait = null;
-        $ligneFraisHorsForfait = null;
+        $montantTotalForfait = 0;
+        $montantTotal = 0;
+        $montantsParType = [];
 
         if ($form->isSubmitted() && $form->isValid()) {
             $ficheFraisId = $form->get('mois')->getData();
             if ($ficheFraisId) {
                 $selectedFicheFrais = $this->ficheFraisRepository->find($ficheFraisId);
-                $ligneFraisForfait = $selectedFicheFrais?->getLignefraisforfaits();
-                $ligneFraisHorsForfait = $selectedFicheFrais?->getLignesfraishorsforfait();
-                //dd($selectedFicheFrais);
+
+                if ($selectedFicheFrais) {
+                    // Calcul des montants
+                    $montantsParType = $selectedFicheFrais->calculerMontantParTypeForfait();
+                    $montantTotalForfait = $selectedFicheFrais->calculerMontantTotalForfait();
+                    $montantTotal = $selectedFicheFrais->calculerMontantTotal();
+                }
             } else {
                 $this->addFlash('error', 'Aucun mois sélectionné');
             }
@@ -55,8 +60,9 @@ final class FicheFraisController extends AbstractController
         return $this->render('fiche_frais/index.html.twig', [
             'form' => $form,
             'selectedFicheFrais' => $selectedFicheFrais,
-            'ligneFraisForfait' => $ligneFraisForfait,
-            'ligneFraisHorsForfait' => $ligneFraisHorsForfait,
+            'montantTotalForfait' => $montantTotalForfait,
+            'montantTotal' => $montantTotal,
+            'montantsParType' => $montantsParType,
         ]);
     }
 
@@ -124,5 +130,29 @@ final class FicheFraisController extends AbstractController
         }
 
         return $this->redirectToRoute('app_fiche_frais_index');
+    }
+
+    #[Route('/top-visiteurs', name: 'app_fiche_frais_top_visiteurs', methods: ['GET', 'POST'])]
+    #[IsGranted('ROLE_COMPTABLE')]
+    public function topVisitors(Request $request, FicheFraisRepository $ficheFraisRepository): Response
+    {
+        // Créer un formulaire pour sélectionner le mois
+        $form = $this->createForm(MoisType::class);
+        $form->handleRequest($request);
+
+        // Initialiser les variables
+        $topVisitors = [];
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $mois = $form->get('mois')->getData(); // Récupérer le mois sélectionné
+
+            // Récupérer les 3 visiteurs médicaux avec les frais validés les plus élevés
+            $topVisitors = $ficheFraisRepository->findTopVisitorsByMonth($mois);
+        }
+
+        return $this->render('fiche_frais/top_visiteurs.html.twig', [
+            'form' => $form->createView(),
+            'topVisitors' => $topVisitors,
+        ]);
     }
 }

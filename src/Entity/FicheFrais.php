@@ -192,6 +192,36 @@ class FicheFrais
         return $this;
     }
 
+    public function calculerMontantTotal(): ?float
+    {
+        $montantTotal = 0;
+
+        foreach ($this->lignefraisforfaits as $ligne) {
+            $montantTotal += $ligne->getFraisForfaits()->getMontant() * $ligne->getQuantite();
+        }
+
+        return $montantTotal;
+    }
+
+    public function calculerMontantParTypeForfait(): array
+    {
+        $montantsParType = [];
+
+        // Parcours des lignes de frais forfaits
+        foreach ($this->getLignefraisforfaits() as $ligne) {
+            $type = $ligne->getFraisForfaits()->getId();
+            $montant = $ligne->getFraisForfaits()->getMontant() * $ligne->getQuantite();
+
+            // Ajout du montant pour ce type
+            if (!isset($montantsParType[$type])) {
+                $montantsParType[$type] = 0;
+            }
+            $montantsParType[$type] += $montant;
+        }
+
+        return $montantsParType;
+    }
+
     public function setOldId($id)
     {
     }

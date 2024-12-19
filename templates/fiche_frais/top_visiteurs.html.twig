@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Top Visiteurs{% endblock %}
+
+{% block body %}
+    <h1>Top 3 Visiteurs Médicaux</h1>
+
+    <form method="post">
+        {{ form_start(form) }}
+        {{ form_row(form.mois) }}
+        <button type="submit">Voir</button>
+        {{ form_end(form) }}
+    </form>
+
+    {% if topVisitors is not empty %}
+        <h2>Top 3 des visiteurs avec les frais validés les plus élevés</h2>
+        <ul>
+            {% for visitor in topVisitors %}
+                <li>
+                    {{ visitor.user.username }} - Frais validés : {{ visitor.totalFrais }}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Aucun visiteur trouvé pour ce mois.</p>
+    {% endif %}
+{% endblock %}
