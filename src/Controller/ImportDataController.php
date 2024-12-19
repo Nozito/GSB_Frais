@@ -9,8 +9,10 @@ use App\Entity\LigneFraisForfait;
 use App\Entity\LigneFraisHorsForfait;
 use App\Entity\User;
 use DateTime;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -185,61 +187,59 @@ class ImportDataController extends AbstractController
      * @throws Exception
      */
     #[Route('/import-data-lfhf', name: 'app_import_data_lfhf')]
-    public function importLigneFraisHorsForfait(): Response
+    public function lireLigneFraisHorsForfaitJson(EntityManagerInterface $entityManager): JsonResponse
     {
-        $path = $this->getParameter('kernel.project_dir') . '/public/lignefraishorsforfait.json';
-        $jsonData = file_get_contents($path);
-        $data = json_decode($jsonData);
+        $chemin = $this->getParameter('kernel.project_dir') . '/public/lignefraishorsforfait.json';
 
-        if ($data === null) {
-            throw new Exception('Failed to decode JSON data.');
+        if (!file_exists($chemin)) {
+            return new JsonResponse(['error' => 'Fichier non trouvé'], 404);
         }
 
-        $entityManager = $this->doctrine->getManager();
+        $contenuJson = file_get_contents($chemin);
+        $ligneFraisHorsForfaitData = json_decode($contenuJson);
 
-        foreach ($data as $item) {
-            $user = $this->doctrine->getRepository(User::class)->findOneBy(['old_id' => $item->idVisiteur]);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            return new JsonResponse(['error' => 'Fichier JSON invalide: ' . json_last_error_msg()], 500);
+        }
 
-            if ($user) {
-                $mois = $item->mois;
-                if (empty($mois)) {
-                    throw new Exception('Mois field is missing or empty in JSON data.');
-                }
+        foreach ($ligneFraisHorsForfaitData as $ligneFraisHorsForfait) {
+            $ligneFraisHorsForfaitVisiteur = new LigneFraisHorsForfait();
 
-                $dateMois = DateTime::createFromFormat('Ym', $mois);
-                if ($dateMois === false) {
-                    throw new Exception('Invalid mois format: ' . $mois);
-                }
+            $ligneFraisHorsForfaitVisiteur->setLibelle($ligneFraisHorsForfait->libelle);
+            $ligneFraisHorsForfaitVisiteur->setDate(new \DateTime($ligneFraisHorsForfait->date));
+            $ligneFraisHorsForfaitVisiteur->setMontant($ligneFraisHorsForfait->montant);
 
-                $ficheFrais = $this->doctrine->getRepository(FicheFrais::class)->findOneBy([
-                    'user' => $user,
-                    'mois' => $dateMois
-                ]);
-
-                if ($ficheFrais) {
-                    $ligneFrais = new LigneFraisHorsForfait();
-
-                    $ligneFrais->setFichesFrais($ficheFrais);
-                    $ligneFrais->setOldId($item->id);
-                    $ligneFrais->setMois($dateMois);
-                    $ligneFrais->setLibelle($item->libelle);
-                    $ligneFrais->setDate(new DateTime($item->date));
-                    $ligneFrais->setMontant($item->montant);
-
-                    $entityManager->persist($ligneFrais);
-                } else {
-                    throw new Exception('FicheFrais not found for idVisiteur: ' . $item->idVisiteur . ' and mois: ' . $item->mois);
-                }
-            } else {
-                throw new Exception('User not found for idVisiteur: ' . $item->idVisiteur);
+            // Parse the 'mois' field
+            $mois = \DateTime::createFromFormat('Ym', $ligneFraisHorsForfait->mois);
+            if ($mois === false) {
+                error_log("Invalid 'mois' format: " . $ligneFraisHorsForfait->mois);
+                continue;
             }
+
+            $user = $entityManager->getRepository(User::class)->findOneBy(['old_id' => $ligneFraisHorsForfait->idVisiteur]);
+            if (!$user) {
+                error_log("User not found for idVisiteur: " . $ligneFraisHorsForfait->idVisiteur);
+                continue;
+            }
+
+            $ficheFrais = $entityManager->getRepository(FicheFrais::class)->findOneBy([
+                'mois' => $mois,
+                'user' => $user
+            ]);
+
+            if (!$ficheFrais) {
+                error_log("FicheFrais not found for mois: " . $mois->format('Y-m') . " and user id: " . $user->getId());
+                continue;
+            }
+
+            $ligneFraisHorsForfaitVisiteur->setFichesFrais($ficheFrais);
+
+            $entityManager->persist($ligneFraisHorsForfaitVisiteur);
         }
 
         $entityManager->flush();
 
-        return $this->render('import_data/index.html.twig', [
-            'controller_name' => 'ImportDataController',
-        ]);
+        return new JsonResponse(['success' => 'Lignes de frais hors forfait importées avec succès'], 200);
     }
 
     /**
