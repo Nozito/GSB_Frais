@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello Top3Controller!{% endblock %}
+
+{% block body %}
+    <turbo-frame id="top3_form">
+        <form method="post" data-turbo-frame="top3_resultats" action="{{ path('app_top3') }}" class="space-y-4">
+            <div class="flex justify-center mt-6">
+                <select name="mois" id="mois" class="block w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    {% for key, mois in moislist %}
+                        <option value="{{ key }}">{{ mois }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex justify-center">
+                <button type="submit" name="validate" value="validate" class="px-4 py-2 bg-indigo-600 text-white rounded-md shadow hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Valider
+                </button>
+            </div>
+        </form>
+    </turbo-frame>
+
+    <!-- Turbo Frame to update dynamically -->
+    <turbo-frame id="top3_resultats">
+        {% if ficheFrais is not null %}
+            <div class="flex justify-center mt-8">
+                <div class="w-full max-w-4xl">
+                    <table class="min-w-full divide-y divide-gray-200 shadow-md rounded-lg overflow-hidden">
+                        <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nom
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Prénom
+                            </th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Montant validé
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                        {% for fiche in ficheFrais %}
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ fiche.user.nom }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ fiche.user.prenom }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {{ fiche.montantValid }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <br/>
+                </div>
+            </div>
+        {% endif %}
+    </turbo-frame>
+
+{% endblock %}
