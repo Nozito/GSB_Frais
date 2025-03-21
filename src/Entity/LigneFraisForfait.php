@@ -109,4 +109,9 @@ class LigneFraisForfait
 
         return $this;
     }
+
+    public function getMontant(): ?string
+    {
+        return $this->FraisForfaits->getMontant() * $this->quantite;
+    }
 }

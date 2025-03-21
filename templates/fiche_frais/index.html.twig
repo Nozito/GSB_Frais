@@ -47,6 +47,7 @@
                         <tr>
                             <th class="border-b py-2 text-gray-600">Type</th>
                             <th class="border-b py-2 text-gray-600 text-right">Quantité</th>
+                            <th class="border-b py-2 text-gray-600 text-right">Montant</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -54,6 +55,7 @@
                             <tr class="hover:bg-blue-100">
                                 <td class="py-2 border-b">{{ ligneFraisForfait.fraisForfaits.libelle }}</td>
                                 <td class="py-2 border-b text-right">{{ ligneFraisForfait.quantite }}</td>
+                                <td class="py-2 border-b text-right">{{ ligneFraisForfait.montant|number_format(2, ',', ' ') }} €</td>
                             </tr>
                         {% endfor %}
                         </tbody>

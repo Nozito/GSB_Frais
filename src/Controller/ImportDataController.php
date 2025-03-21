@@ -266,4 +266,20 @@ class ImportDataController extends AbstractController
 
         return new Response('Les mots de passe des utilisateurs ont été hachés avec succès.', 200);
     }
+
+    // Patch to set all the month to the first of each one
+    #[Route('/set-month-first', name: 'app_set_month_first')]
+    public function setMonthFirst(ManagerRegistry $registry): Response
+    {
+        $entityManager = $registry->getManager();
+        $ficheFrais = $entityManager->getRepository(FicheFrais::class)->findAll();
+
+        foreach ($ficheFrais as $fiche) {
+            $fiche->setMois(new DateTime($fiche->getMois()->format('Y-m') . '-01'));
+            $entityManager->persist($fiche);
+        }
+        $entityManager->flush();
+
+        return new Response('Les mois ont été mis à jour avec succès.', 200);
+    }
 }

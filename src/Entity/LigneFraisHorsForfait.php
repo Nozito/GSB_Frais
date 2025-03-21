@@ -18,9 +18,6 @@ class LigneFraisHorsForfait
     #[ORM\ManyToOne(inversedBy: 'lignesfraishorsforfait')]
     private ?FicheFrais $fichesFrais = null;
 
-
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private $mois;
     #[ORM\Column(length: 255)]
     private ?string $libelle = null;
 
