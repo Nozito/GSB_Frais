@@ -167,6 +167,7 @@
       <path value="$PROJECT_DIR$/vendor/doctrine 2/instantiator" />
       <path value="$PROJECT_DIR$/vendor/dasprid/enum" />
       <path value="$PROJECT_DIR$/vendor/symfony/security-http 2" />
+      <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php84" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2" />
