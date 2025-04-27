@@ -65,7 +65,7 @@ class FicheFrais
         return $this->mois;
     }
 
-    public function setMois(\DateTimeInterface $mois): static
+    public function setMois(DateTimeInterface $mois): static
     {
         $this->mois = $mois;
 
@@ -184,7 +184,7 @@ class FicheFrais
     {
         if ($this->lignesfraishorsforfait->removeElement($lignesfraishorsforfait)) {
             // set the owning side to null (unless already changed)
-            if ($lignesfraishorsforfait->getFichesFrais() === $this) {
+            if ($lignesfraishorsforfait->getFicheFrais() === $this) {
                 $lignesfraishorsforfait->setFichesFrais(null);
             }
         }

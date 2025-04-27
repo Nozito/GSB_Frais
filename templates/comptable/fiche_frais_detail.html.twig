@@ -1,0 +1,198 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détail de la fiche de frais{% endblock %}
+
+{% block body %}
+    <div class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="max-w-4xl w-full bg-white p-8 rounded-xl shadow-xl space-y-8">
+
+            <h1 class="text-3xl font-semibold text-gray-800 mb-6 border-b pb-4">Détail de la fiche de frais</h1>
+
+            <!-- Informations sur l'utilisateur et la fiche -->
+            <div class="space-y-4">
+                <div class="flex justify-between items-center">
+                    <p class="text-lg text-gray-700"><strong>Utilisateur :</strong> <span
+                                class="font-medium">{{ fiche.user.nom }} {{ fiche.user.prenom }}</span></p>
+                    <p class="text-lg text-gray-700"><strong>Mois :</strong> <span
+                                class="font-medium">{{ fiche.mois|date('m/Y') }}</span></p>
+                </div>
+
+                <div class="flex justify-between items-center">
+                    <p class="text-lg text-gray-700"><strong>Montant :</strong> <span
+                                class="font-medium">{{ fiche.montantValid|number_format(2, ',', ' ') }} €</span></p>
+                    <p class="text-lg text-gray-700"><strong>État :</strong>
+                        <span class="px-3 py-2 rounded-full text-xs font-semibold
+                        {% if fiche.etat.libelle == 'CL' %}
+                            bg-blue-500 text-white
+                        {% elseif fiche.etat.libelle == 'CR' %}
+                            bg-pink-100 text-pink-700
+                        {% elseif fiche.etat.libelle == 'RB' %}
+                            bg-purple-100 text-purple-700
+                        {% elseif fiche.etat.libelle == 'VA' %}
+                            bg-green-100 text-green-700
+                        {% else %}
+                            bg-gray-100 text-gray-700
+                        {% endif %}
+                    ">
+                        {% if fiche.etat.libelle == 'CL' %}
+                            CL - Saisie clôturée
+                        {% elseif fiche.etat.libelle == 'CR' %}
+                            CR - Saisie en cours
+                        {% elseif fiche.etat.libelle == 'RB' %}
+                            RB - Remboursée
+                        {% elseif fiche.etat.libelle == 'VA' %}
+                            VA - Validée et mise en paiement
+                        {% else %}
+                            {{ fiche.etat.libelle }}
+                        {% endif %}
+                    </span>
+                    </p>
+                </div>
+
+                <!-- Affichage des messages flash -->
+                {% for label, messages in app.flashes %}
+                    {% for message in messages %}
+                        <div class="p-4 mb-4 rounded-lg shadow-md
+                        {% if label == 'success' %}
+                            bg-green-100 text-green-800 border border-green-300
+                        {% elseif label == 'error' %}
+                            bg-red-100 text-red-800 border border-red-300
+                        {% else %}
+                            bg-blue-100 text-blue-800 border border-blue-300
+                        {% endif %}
+                    ">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+
+            <div class="mt-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Détail des frais forfaitisés</h2>
+                <div class="overflow-x-auto bg-gray-50 shadow-md rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <thead class="bg-gray-100 text-gray-600 uppercase">
+                        <tr>
+                            <th class="px-6 py-3">Frais</th>
+                            <th class="px-6 py-3">Quantité</th>
+                            <th class="px-6 py-3">Montant</th>
+                            <th class="px-6 py-3"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ligne in ligneFraisForfaits %}
+                            <tr class="border-t hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">{{ ligne.fraisForfaits.libelle }}</td>
+                                <td class="px-6 py-4">
+                                    <form method="post"
+                                          action="{{ path('comptable_edit_frais_forfait', { 'ficheid': fiche.id, 'ligneid': ligne.id }) }}">
+                                        <input type="number" name="quantite" value="{{ ligne.quantite }}"
+                                               class="p-2 border rounded-lg w-20">
+                                        <button type="submit"
+                                                class="bg-yellow-500 text-white py-1 px-4 rounded-lg hover:bg-yellow-600 focus:ring-2 focus:ring-yellow-500 {% if fiche.etat.id == 3 or fiche.etat.id == 4 %} cursor-not-allowed opacity-50 {% endif %}" {% if fiche.etat.id == 3 or fiche.etat.id == 4 %} disabled {% endif %}>
+                                            Modifier
+                                        </button>
+                                    </form>
+                                </td>
+                                <td class="px-6 py-4">{{ ligne.getMontant()|number_format(2, ',', ' ') }} €</td>
+                                <td class="px-6 py-4"></td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center px-6 py-4 text-gray-500">Aucun frais forfaitisé
+                                    trouvé.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Frais hors forfait -->
+            <div class="mt-8">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Détail des frais hors forfait</h2>
+                <div class="overflow-x-auto bg-gray-50 shadow-md rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-700">
+                        <thead class="bg-gray-100 text-gray-600 uppercase">
+                        <tr>
+                            <th class="px-6 py-3">Date</th>
+                            <th class="px-6 py-3">Libellé</th>
+                            <th class="px-6 py-3">Montant</th>
+                            <th class="px-6 py-3">Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ligne in ligneFraisHorsForfaits %}
+                            <tr class="border-t hover:bg-gray-50 transition">
+                                <td class="px-6 py-4">{{ ligne.date|date('d/m/Y') }}</td>
+                                <td class="px-6 py-4">{{ ligne.libelle }}</td>
+                                <td class="px-6 py-4">{{ ligne.montant|number_format(2, ',', ' ') }} €</td>
+                                <td class="px-6 py-4 space-y-2">
+                                    <form method="post"
+                                          action="{{ path('comptable_report_ligne', { 'ficheid': fiche.id, 'ligneid': ligne.id }) }}">
+                                        <button type="submit"
+                                                class="w-full bg-blue-500 text-white py-1 px-4 rounded-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 {% if fiche.etat.id == 3 or fiche.etat.id == 4 %} cursor-not-allowed opacity-50 {% endif %}" {% if fiche.etat.id == 3 or fiche.etat.id == 4 %} disabled {% endif %}>
+                                            Reporter
+                                        </button>
+                                    </form>
+                                    <form method="post"
+                                          action="{{ path('comptable_frais_hors_forfait_refuser', { 'ficheid': fiche.id, 'ligneid': ligne.id }) }}">
+                                        <button type="submit"
+                                                class="w-full bg-red-500 text-white py-1 px-4 rounded-lg hover:bg-red-600 focus:ring-2 focus:ring-red-500
+                                                {% if ligne.libelle starts with 'REFUSE :' %}
+                                                cursor-not-allowed opacity-50 {% endif %}"
+                                                {% if ligne.libelle starts with 'REFUSE :' %} disabled
+                                                {% endif %}>
+                                            Refuser
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="4" class="text-center px-6 py-4 text-gray-500">Aucun frais hors forfait
+                                    trouvé.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            {% if fiche.etat.id != 3 and fiche.etat.id != 4 %}
+                <div class="mt-8 flex space-x-6">
+                    <form method="post" action="{{ path('comptable_fiche_frais_valider', { id: fiche.id }) }}">
+                        <button type="submit"
+                                class="px-6 py-3 text-white bg-green-500 rounded-xl hover:bg-green-600 transition duration-300 focus:outline-none shadow-md hover:shadow-lg">
+                            Valider la fiche de frais
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if fiche.etat.id == 4 %}
+                <div class="mt-8">
+                    <form method="post"
+                          action="{{ path('comptable_fiche_frais_mettre_en_paiement', { id: fiche.id }) }}">
+                        <button type="submit"
+                                class="px-6 py-3 text-white bg-green-500 rounded-xl hover:bg-blue-600 focus:outline-none transition duration-300 focus:ring-2 focus:ring-blue-500">
+                            Mettre en paiement
+                        </button>
+                    </form>
+                </div>
+            {% endif %}
+
+            <!-- Retour -->
+            <div class="mt-8">
+                <a href="{{ path('comptable_fiches_frais') }}"
+                   class="text-blue-600 hover:underline text-lg font-medium">
+                    <span class="inline-block transform transition-transform hover:scale-105">Retour à la liste</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}

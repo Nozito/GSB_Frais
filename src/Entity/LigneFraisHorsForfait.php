@@ -90,4 +90,9 @@ class LigneFraisHorsForfait
     public function setOldId($id)
     {
     }
+
+    public function getFicheFrais()
+    {
+    }
+
 }

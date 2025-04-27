@@ -13,18 +13,6 @@ class FicheFraisRepository extends ServiceEntityRepository
         parent::__construct($registry, FicheFrais::class);
     }
 
-    public function findByUserMois(User $user, string $mois): ?FicheFrais
-    {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.mois = :mois')
-            ->andWhere('f.user = :user')
-            ->setParameter('mois', $mois)
-            ->setParameter('user', $user)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-
     public function findTop3(string $mois): array
     {
         return $this->createQueryBuilder('f')
@@ -36,4 +24,14 @@ class FicheFraisRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
+    public function getDistinctMonths()
+    {
+        return $this->createQueryBuilder('f')
+            ->select('DISTINCT f.mois')
+            ->orderBy('f.mois', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
+
 }

@@ -10,7 +10,10 @@ use App\Entity\LigneFraisHorsForfait;
 use App\Form\MoisType;
 use App\Form\SaisieFicheForfaitType;
 use App\Form\SaisieFicheHorsForfaitType;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,18 +22,18 @@ use Symfony\Component\Routing\Annotation\Route;
 class SaisieFicheController extends AbstractController
 {
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     #[Route('/saisiefiche', name: 'app_saisie_fiche', methods: ['GET', 'POST'])]
     public function index(Request $request, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         // Définition de la date du mois
-        $moisActuel = new \DateTime('first day of this month');
+        $moisActuel = new DateTime('first day of this month');
 
         // Vérification que la date du mois est correctement définie (ce qui est garanti par la ligne ci-dessus)
-        if (!$moisActuel instanceof \DateTimeInterface) {
-            throw new \Exception("La date du mois ne peut pas être nulle.");
+        if (!$moisActuel instanceof DateTimeInterface) {
+            throw new Exception("La date du mois ne peut pas être nulle.");
         }
 
         // Recherche de la fiche de frais pour l'utilisateur et le mois courant
@@ -49,7 +52,7 @@ class SaisieFicheController extends AbstractController
             $ficheFrais->setMois($moisActuel);
 
             // Autres champs à initialiser
-            $ficheFrais->setDateModif(new \DateTime());
+            $ficheFrais->setDateModif(new DateTime());
             $ficheFrais->setNbJustificatifs(0);
             $ficheFrais->setMontantValid(0);
 
@@ -137,7 +140,7 @@ class SaisieFicheController extends AbstractController
             $ficheFrais->getLignefraisforfaits()[3]->setQuantite($repas);
 
             // Mettre à jour la date de modification
-            $ficheFrais->setDateModif(new \DateTime());
+            $ficheFrais->setDateModif(new DateTime());
 
             // Persister et sauvegarder les modifications
             $em->persist($ficheFrais);
@@ -151,6 +154,14 @@ class SaisieFicheController extends AbstractController
         if ($formHorsForfaits->isSubmitted() && $formHorsForfaits->isValid()) {
             // Enregistrement des frais hors forfait
             $dataHorsForfait = $formHorsForfaits->getData();
+
+            $dateFrais = $dataHorsForfait['date'];
+            $anneeActuelle = (new DateTime())->format('Y');
+
+            if ($dateFrais->format('Y') !== $anneeActuelle) {
+                $this->addFlash('error', 'La date d’engagement doit se situer dans l’année écoulée');
+                return $this->redirectToRoute('app_saisie_fiche');
+            }
             $ligneHorsForfait = new LigneFraisHorsForfait();
             $ligneHorsForfait->setFichesFrais($ficheFrais);
             $ligneHorsForfait->setDate($dataHorsForfait['date']);
@@ -162,7 +173,7 @@ class SaisieFicheController extends AbstractController
             $ficheFrais->addLignesFraisHorsForfait($ligneHorsForfait);
 
             // Mettre à jour la date de modification
-            $ficheFrais->setDateModif(new \DateTime());
+            $ficheFrais->setDateModif(new DateTime());
             $em->flush();
 
             // Message de confirmation

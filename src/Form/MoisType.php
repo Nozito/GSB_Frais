@@ -2,6 +2,7 @@
 
 namespace App\Form;
 
+use IntlDateFormatter;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -12,12 +13,12 @@ class MoisType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $choices = [];
-        $formatter = new \IntlDateFormatter(
+        $formatter = new IntlDateFormatter(
             'fr_FR',
-            \IntlDateFormatter::FULL,
-            \IntlDateFormatter::NONE,
+            IntlDateFormatter::FULL,
+            IntlDateFormatter::NONE,
             'Europe/Paris',
-            \IntlDateFormatter::GREGORIAN,
+            IntlDateFormatter::GREGORIAN,
             'MMMM yyyy'
         );
 
