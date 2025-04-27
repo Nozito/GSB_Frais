@@ -18,8 +18,8 @@
 8. [Fonctionnalités principales](#fonctionnalités-principales)
 9. [Spécificités du projet](#spécificités-du-projet)
 10. [Authentification à Deux Facteurs (A2F)](#authentification-à-deux-facteurs-a2f)
-11. [Capture d'écrans](#capture-décrans)
 12. [Diagramme de classe](#diagramme-de-classe)
+13. [Tests et Vérification du code](#tests-et-vérification-du-code)
 
 ---
 
@@ -228,3 +228,39 @@ Cette fonctionnalité est cruciale pour renforcer la sécurité des informations
 ## Diagramme de classe
 
 ![GSB_Frais_Symfony-diagramme de classe](https://github.com/user-attachments/assets/d66a8386-4c68-4490-8ce4-0dfd8c2bae6b)
+
+Ce diagramme représente les différentes classes ainsi que leurs relations dans le projet GSB Frais
+
+## Tests et Vérification du code
+
+Les tests unitaires sont réalisés avec PHPUnit.
+	•	Le code est analysé automatiquement avec SonarCloud pour détecter :
+	•	Bugs
+	•	Vulnérabilités
+	•	Code smells
+	•	Duplications
+- SonarCloud est intégré dans le projet pour assurer la qualité et la maintenabilité du code.
+
+![image](https://github.com/user-attachments/assets/b7ef48a7-ccd9-4795-8579-3f30b2046a3e)
+
+
+- PhpStorm est utilisé pour exécuter les tests et effectuer les analyses.
+- Important : Pour bénéficier de l’analyse en temps réel dans PhpStorm, il est recommandé d’installer le plugin SonarLint et de le configurer pour se connecter à SonarCloud.
+
+### Installation rapide de SonarLint (recommandé)
+Pour analyser votre code en temps réel directement dans PhpStorm :
+
+#### 1.	Installer le plugin SonarLint :
+- Allez dans File > Settings > Plugins.
+- Cherchez SonarLint et installez-le.
+ 
+#### 2. Connecter SonarLint à SonarCloud :
+- Une fois installé, ouvrez Settings > Tools > SonarLint > Connections.
+- Cliquez sur + pour ajouter une nouvelle connexion.
+- Sélectionnez SonarCloud, connectez-vous avec votre compte (GitHub, Bitbucket, etc.), et associez le projet.
+  
+#### 3.	Synchroniser avec le projet :
+- Assurez-vous que votre projet est bien lié à SonarCloud.
+- SonarLint appliquera automatiquement les règles de qualité configurées sur SonarCloud.
+
+
