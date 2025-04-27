@@ -96,15 +96,15 @@ class ComptableController extends AbstractController
         // Filtrer par mois si un mois est sélectionné
         if ($mois && preg_match('/^\d{4}-\d{2}$/', $mois)) {
             $dateDebut = new \DateTimeImmutable($mois . '-01');  // On utilise le 1er du mois
-            $queryBuilder->andWhere('YEAR(f.mois) = :year AND MONTH(f.mois) = :month')
-                ->setParameter('year', $dateDebut->format('Y'))
-                ->setParameter('month', $dateDebut->format('m'));
+            $queryBuilder->andWhere('f.mois >= :startMonth')
+                ->andWhere('f.mois < :endMonth')
+                ->setParameter('startMonth', $dateDebut->format('Y-m-d'))
+                ->setParameter('endMonth', $dateDebut->modify('+1 month')->format('Y-m-d'));
         }
 
         // Filtrer par état si un état est sélectionné
         if (!empty($etat)) {
-            $queryBuilder->andWhere('f.etat = :etat')
-                ->setParameter('etat', $etat);
+            $queryBuilder->andWhere('f.etat = :etat')->setParameter('etat', $etat);
         }
 
         // Récupérer les résultats filtrés
@@ -112,19 +112,13 @@ class ComptableController extends AbstractController
 
         // Calcul du montant total validé pour les fiches avec état "Remboursée" ou "Validée"
         $totalMontant = array_reduce($ficheFrais, fn($carry, $fiche) =>
-        ($fiche->getEtat()->getLibelle() === 'RB' || $fiche->getEtat()->getLibelle() === 'VA')
+        in_array($fiche->getEtat()->getLibelle(), ['RB', 'VA'])
             ? $carry + $fiche->getMontantValid()
             : $carry, 0);
         $totalMontantFormatted = number_format($totalMontant, 0, ',', ' ');
 
         // Récupérer les années distinctes
-        $years = [];
-        foreach ($ficheFrais as $fiche) {
-            $year = $fiche->getMois()->format('Y');
-            if (!in_array($year, $years)) {
-                $years[] = $year;
-            }
-        }
+        $years = array_unique(array_map(fn($fiche) => $fiche->getMois()->format('Y'), $ficheFrais));
         $numberOfYears = count($years);
 
         // Récupérer les mois distincts pour l'utilisateur si sélectionné
@@ -136,16 +130,13 @@ class ComptableController extends AbstractController
                 ->setParameter('user', $userId);
 
             if ($etat) {
-                $qb->andWhere('f.etat = :etat')
-                    ->setParameter('etat', $etat);
+                $qb->andWhere('f.etat = :etat')->setParameter('etat', $etat);
             }
 
-            $userFiches = $qb->orderBy('f.mois', 'ASC')
-                ->getQuery()
-                ->getResult();
+            $userFiches = $qb->orderBy('f.mois', 'ASC')->getQuery()->getResult();
 
             foreach ($userFiches as $fiche) {
-                $moisString = $fiche['mois']->format('F');
+                $moisString = $fiche['mois']->format('Y-m');
                 $months[$moisString] = $fiche['mois']->format('m/Y');
             }
         }
@@ -161,9 +152,11 @@ class ComptableController extends AbstractController
             'numberOfYears' => $numberOfYears,
             'totalMontantFormatted' => $totalMontantFormatted,
             'months' => $months,
-            'selectedEtat' => $etat, // Pour garder la sélection de l'état
+            'selectedEtat' => $etat,
         ]);
     }
+
+
 
     #[Route('/fiche-frais/{id}', name: 'comptable_fiche_frais_detail')]
     public function ficheFraisDetail(FicheFrais $ficheFrais, Request $request, EntityManagerInterface $em): Response

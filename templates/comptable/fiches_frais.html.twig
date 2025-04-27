@@ -31,6 +31,7 @@
                         </option>
                     {% endfor %}
                 </select>
+
             </div>
 
             <!-- Filtre par état -->
@@ -98,7 +99,6 @@
                         <th class="px-6 py-4">ID</th>
                         <th class="px-6 py-4">Utilisateur</th>
                         <th class="px-6 py-4">Mois</th>
-                        <th class="px-6 py-4">Année</th>
                         <th class="px-6 py-4">Montant</th>
                         <th class="px-6 py-4">Statut</th>
                         <th class="px-6 py-4">Action</th>
@@ -109,8 +109,7 @@
                         <tr class="border-t hover:bg-gray-50 transition">
                             <td class="px-6 py-4">{{ fiche.id }}</td>
                             <td class="px-6 py-4">{{ fiche.user.nom }} {{ fiche.user.prenom }}</td>
-                            <td class="px-6 py-4">{{ fiche.mois|date('F') }}</td>
-                            <td class="px-6 py-4">{{ fiche.mois|date('Y') }}</td>
+                            <td class="px-6 py-4">{{ fiche.mois|date('F Y') }}</td>
                             <td class="px-6 py-4">{{ fiche.montantValid|number_format(2, ',', ' ') }} €</td>
                             <td class="px-6 py-4">
                                 <span class="px-2 py-1 rounded-full text-xs font-semibold

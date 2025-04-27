@@ -49,7 +49,6 @@ final class FicheFraisController extends AbstractController
                 $selectedFicheFrais = $this->ficheFraisRepository->find($ficheFraisId);
                 $ligneFraisForfait = $selectedFicheFrais?->getLignefraisforfaits();
                 $ligneFraisHorsForfait = $selectedFicheFrais?->getLignesfraishorsforfait();
-                //dd($selectedFicheFrais);
             } else {
                 $this->addFlash('error', 'Aucun mois sélectionné');
             }
