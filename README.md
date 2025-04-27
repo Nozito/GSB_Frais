@@ -233,12 +233,12 @@ Ce diagramme représente les différentes classes ainsi que leurs relations dans
 
 ## Tests et Vérification du code
 
-Les tests unitaires sont réalisés avec PHPUnit.
-	•	Le code est analysé automatiquement avec SonarCloud pour détecter :
-	•	Bugs
-	•	Vulnérabilités
-	•	Code smells
-	•	Duplications
+- Les tests unitaires sont réalisés avec PHPUnit.
+- Le code est analysé automatiquement avec SonarCloud pour détecter :
+- Bugs
+- Vulnérabilités
+- Duplications
+  
 - SonarCloud est intégré dans le projet pour assurer la qualité et la maintenabilité du code.
 
 ![image](https://github.com/user-attachments/assets/b7ef48a7-ccd9-4795-8579-3f30b2046a3e)
