@@ -2,10 +2,12 @@
 
 namespace App\Controller;
 
+use App\Entity\Etat;
 use App\Entity\FicheFrais;
 use App\Form\FicheFraisType;
 use App\Form\MoisType;
 use App\Repository\FicheFraisRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +29,7 @@ final class FicheFraisController extends AbstractController
     #[Route('/', name: 'app_fiche_frais_index', methods: ['GET', 'POST'])]
     public function index(Request $request): Response
     {
+        $this->cloturerFichesFrais();
         $user = $this->getUser();
         $ficheFraisCollection = $this->ficheFraisRepository->findBy(['user' => $user]);
 
@@ -124,5 +127,27 @@ final class FicheFraisController extends AbstractController
         }
 
         return $this->redirectToRoute('app_fiche_frais_index');
+    }
+
+    public function cloturerFichesFrais(): void
+    {
+        // Récupérer toutes les fiches de frais
+        $ficheFraisList = $this->ficheFraisRepository->findAll();
+
+        // Obtenir la date actuelle
+        $currentDate = new DateTime();
+        $currentMonth = $currentDate->format('m/Y');
+
+        foreach ($ficheFraisList as $fiche) {
+            if ($fiche->getMois()->format('m/Y') < $currentMonth && $fiche->getEtat()->getLibelle() !== 'CL') {
+                $etatCloturee = $this->entityManager->getRepository(Etat::class)->findOneBy(['libelle' => 'CL']);
+
+                if ($etatCloturee) {
+                    $fiche->setEtat($etatCloturee);
+                    $fiche->setDateModif(new DateTime());
+                    $this->entityManager->flush();
+                }
+            }
+        }
     }
 }

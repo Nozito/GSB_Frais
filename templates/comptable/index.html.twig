@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard Comptable{% endblock %}
+
+{% block body %}
+    <div class="flex min-h-screen bg-gray-100">
+        <!-- Main content -->
+        <div class="flex-1 flex flex-col">
+
+            <!-- Page content -->
+            <main class="p-8 flex-grow space-y-8">
+                <!-- Header -->
+                <h1 class="text-4xl font-bold text-gray-800 mb-8 animate-fade-in-down">Dashboard</h1>
+
+                <!-- Statistiques -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 animate-fade-in-up">
+                    <!-- Total des fiches -->
+                    <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105">
+                        <h2 class="text-gray-600 text-lg">Total des fiches</h2>
+                        <p class="text-4xl font-bold text-blue-500 mt-2">{{ totalFiches }}</p>
+                    </div>
+
+                    <!-- Fiches Validées -->
+                    <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105">
+                        <h2 class="text-gray-600 text-lg">Fiches Validées</h2>
+                        <p class="text-4xl font-bold text-green-500 mt-2">{{ fichesValidees }}</p>
+                    </div>
+
+                    <!-- Montant Total des Fiches -->
+                    <div class="p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-transform duration-300 transform hover:scale-105">
+                        <h2 class="text-gray-600 text-lg">Montant total des fiches</h2>
+                        <p class="text-4xl font-bold text-orange-500 mt-2">{{ totalMontantFormatted }} €</p>
+                    </div>
+                </div>
+
+                <!-- Dernières Fiches -->
+                <div class="bg-white rounded-2xl shadow-md p-8 animate-fade-in-up">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Dernières Fiches</h2>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-700">
+                            <thead class="bg-gray-100 text-gray-600 uppercase">
+                            <tr>
+                                <th class="px-6 py-3">Utilisateur</th>
+                                <th class="px-6 py-3">Mois</th>
+                                <th class="px-6 py-3">Montant</th>
+                                <th class="px-6 py-3">Statut</th>
+                                <th class="px-6 py-3">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for fiche in dernieresFiches %}
+                                <tr class="border-b hover:bg-gray-50 transition">
+                                    <td class="px-6 py-4">{{ fiche.user.nom }} {{ fiche.user.prenom }}</td>
+                                    <td class="px-6 py-4">{{ fiche.mois|date('m/Y') }}</td>
+                                    <td class="px-6 py-4">{{ fiche.montantValid|number_format(2, ',', ' ') }} €</td>
+                                    <td class="px-6 py-4">
+                                            <span class="px-2 py-1 rounded-full text-xs font-semibold
+                                                {% if fiche.etat.libelle == 'CL' %}
+                                                    bg-blue-500 text-white
+                                                {% elseif fiche.etat.libelle == 'CR' %}
+                                                    bg-pink-100 text-pink-700
+                                                {% elseif fiche.etat.libelle == 'RB' %}
+                                                    bg-purple-100 text-purple-700
+                                                {% elseif fiche.etat.libelle == 'VA' %}
+                                                    bg-green-100 text-green-700
+                                                {% else %}
+                                                    bg-gray-100 text-gray-700
+                                                {% endif %}
+                                            ">
+                                                {% if fiche.etat.libelle == 'CL' %}
+                                                    Saisie Clôturée -
+                                                {% elseif fiche.etat.libelle == 'CR' %}
+                                                    Fiche Créée, saisie en cours -
+                                                {% elseif fiche.etat.libelle == 'RB' %}
+                                                    Remboursée -
+                                                {% elseif fiche.etat.libelle == 'VA' %}
+                                                    Validée et mise en paiement -
+                                                {% else %}
+                                                    {{ fiche.etat.libelle }}
+                                                {% endif %}
+                                                {{ fiche.etat.libelle }}
+                                            </span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <a href="{{ path('comptable_fiche_frais_detail', { id: fiche.id }) }}"
+                                           class="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 transform hover:scale-105">
+                                            Voir
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center px-6 py-4 text-gray-500">Aucune fiche récente.</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Button to see all fiches -->
+                    <div class="mt-6 text-center">
+                        <a href="{{ path('comptable_fiches_frais') }}" class="text-white bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-full transition duration-300">
+                            Voir toutes les fiches
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Graphique -->
+                <div class="bg-white rounded-2xl shadow-md p-8 mb-10 animate-fade-in-up mt-10">
+                    <h2 class="text-2xl font-semibold text-gray-700 mb-6">Nombre de Fiches par Mois</h2>
+                    <div class="w-full h-80"> <!-- Limiter la hauteur du conteneur -->
+                        <canvas id="fichesChart"></canvas>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ChartJS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('fichesChart').getContext('2d');
+        const fichesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ moisLabels|json_encode|raw }},
+                datasets: [{
+                    label: 'Fiches',
+                    data: {{ fichesCount|json_encode|raw }},
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,  // Ensures the chart resizes well on different screens
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + " fiches"; // Add unit to y-axis labels
+                            }
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Mois', // X-axis label
+                            font: {
+                                size: 14,
+                                weight: 'bold',
+                                family: 'Arial'
+                            },
+                            color: '#333'
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        enabled: true, // Enable tooltip
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                return tooltipItem.raw + " fiches"; // Add unit to tooltip
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    duration: 1000, // Animation duration for the chart rendering
+                    easing: 'easeInOutQuad' // Smooth easing
+                }
+            }
+        });
+    </script>
+
+{% endblock %}

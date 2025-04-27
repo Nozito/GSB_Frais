@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\FicheFrais;
+use DateTime;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,7 +36,7 @@ class Top3Controller extends AbstractController
         //$selectedMonth = '2024' . $request->request->get('mois');
         if($selectedMonth){
             //create datetime object corresponding to the selected month in 2024
-            $selectedMonth = new \DateTime('2024-' . $selectedMonth . '-01');
+            $selectedMonth = new DateTime('2024-' . $selectedMonth . '-01');
             $ficheFrais = $doctrine->getRepository(FicheFrais::class)->findBy(['mois' => $selectedMonth]);
             usort($ficheFrais, function($a, $b) {
                 return $a->getMontantValid() < $b->getMontantValid();

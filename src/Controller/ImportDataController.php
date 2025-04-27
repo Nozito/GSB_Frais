@@ -206,11 +206,11 @@ class ImportDataController extends AbstractController
             $ligneFraisHorsForfaitVisiteur = new LigneFraisHorsForfait();
 
             $ligneFraisHorsForfaitVisiteur->setLibelle($ligneFraisHorsForfait->libelle);
-            $ligneFraisHorsForfaitVisiteur->setDate(new \DateTime($ligneFraisHorsForfait->date));
+            $ligneFraisHorsForfaitVisiteur->setDate(new DateTime($ligneFraisHorsForfait->date));
             $ligneFraisHorsForfaitVisiteur->setMontant($ligneFraisHorsForfait->montant);
 
             // Parse the 'mois' field
-            $mois = \DateTime::createFromFormat('Ym', $ligneFraisHorsForfait->mois);
+            $mois = DateTime::createFromFormat('Ym', $ligneFraisHorsForfait->mois);
             if ($mois === false) {
                 error_log("Invalid 'mois' format: " . $ligneFraisHorsForfait->mois);
                 continue;

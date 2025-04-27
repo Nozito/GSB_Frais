@@ -2,77 +2,87 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}Welcome!{% endblock %}</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'><text y='1.2em' font-size='96'>⚫️</text><text y='1.3em' x='0.2em' font-size='76' fill='#fff'>sf</text></svg>">
     {% block stylesheets %}
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     {% endblock %}
-
-    {% block javascripts %}
-        {% block importmap %}{{ importmap('app') }}{% endblock %}
-    {% endblock %}
 </head>
+
 <body class="bg-gray-50">
 
 <!-- Navbar -->
-<nav class="bg-white border-gray-200 dark:bg-gray-900 shadow-md">
-    <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-        <!-- Logo -->
-        <a href="/" class="flex items-center space-x-3 rtl:space-x-reverse">
-            <img src="https://flowbite.com/docs/images/logo.svg" class="h-8" alt="Logo">
-            <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">GSB</span>
+<nav class="bg-white shadow-md py-4">
+    <div class="max-w-screen-xl mx-auto px-6 flex justify-between items-center">
+        <!-- Logo (stays left) -->
+        <a href="/" class="flex items-center space-x-3">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M17.6745 16.9224L12.6233 10.378C12.2167 9.85117 11.4185 9.8611 11.0251 10.3979L6.45728 16.631C6.26893 16.888 5.96935 17.0398 5.65069 17.0398H3.79114C2.9635 17.0398 2.49412 16.0919 2.99583 15.4336L11.0224 4.90319C11.4206 4.38084 12.2056 4.37762 12.608 4.89668L20.9829 15.6987C21.4923 16.3558 21.024 17.3114 20.1926 17.3114H18.4661C18.1562 17.3114 17.8638 17.1677 17.6745 16.9224ZM12.5866 15.5924L14.8956 18.3593C15.439 19.0105 14.976 20 14.1278 20H9.74075C8.9164 20 8.4461 19.0586 8.94116 18.3994L11.0192 15.6325C11.4065 15.1169 12.1734 15.0972 12.5866 15.5924Z" fill="var(--color-primary)" />
+            </svg>
+            <span class="text-2xl font-semibold text-gray-800">GSB</span>
         </a>
 
+        <!-- Navbar Links (aligned right) -->
+        <div class="hidden md:flex items-center space-x-8">
+            <ul class="flex space-x-8">
+                <li><a href="{{ path('home') }}" class="text-gray-900 hover:text-blue-600">Accueil</a></li>
+                <li><a href="{{ path('app_fiche_frais_index') }}" class="text-gray-900 hover:text-blue-600">Mes fiches de frais</a></li>
+
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <li><a href="{{ path('app_profile') }}" class="text-gray-900 hover:text-blue-600">Mon compte</a></li>
+
+                    {% if is_granted('ROLE_COMPTABLE') %}
+                        <li><a href="{{ path('comptable_dashboard') }}" class="text-gray-900 hover:text-blue-600">Espace Comptable</a></li>
+                    {% endif %}
+
+                    <li><a href="{{ path('app_logout') }}" class="text-gray-900 hover:text-blue-600">Déconnexion</a></li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}" class="text-gray-900 hover:text-blue-600">Se connecter</a></li>
+                {% endif %}
+            </ul>
+        </div>
+
         <!-- Mobile Menu Button -->
-        <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
-            <span class="sr-only">Open main menu</span>
+        <button class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200" data-collapse-toggle="navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false">
+            <span class="sr-only">Ouvrir le menu</span>
             <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"></path>
             </svg>
         </button>
 
-        <!-- Navbar Menu (Hidden on mobile, shown on large screens) -->
-        <div class="hidden w-full md:block md:w-auto" id="navbar-default">
-            <ul class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-                <li>
-                    <a href="{{ path('home') }}" class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500" >Accueil</a>
-                </li>
-                <li>
-                    <a href="{{ path('app_fiche_frais_index') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Mes fiches de frais</a>
-                </li>
-               {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-               <li>
-                   <a href="{{ path('app_profile') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Mon Compte</a>
-               </li>
+        <!-- Mobile Navbar Links -->
+        <div class="md:hidden hidden w-full" id="navbar-collapse">
+            <ul class="flex flex-col items-center space-y-4 mt-4">
+                <li><a href="{{ path('home') }}" class="text-gray-900 hover:text-blue-600">Accueil</a></li>
+                <li><a href="{{ path('app_fiche_frais_index') }}" class="text-gray-900 hover:text-blue-600">Mes fiches de frais</a></li>
 
-{#                   <li>#}
-{#                       <a href="{{path('app_top3') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Top 3 Dépenses</a>#}
-{#                   </li>#}
-                   <li>
-                       <a href="{{ path('app_logout') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Déconnexion</a>
-                   </li>
-               {% else %}
-               <li>
-                   <a href="{{ path('app_login') }}" class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Se connecter</a>
-               </li>
-               {% endif %}
+                {% if is_granted('IS_AUTHENTICATED_FULLY') %}
+                    <li><a href="{{ path('app_profile') }}" class="text-gray-900 hover:text-blue-600">Mon compte</a></li>
 
+                    {% if is_granted('ROLE_COMPTABLE') %}
+                        <li><a href="{{ path('comptable_dashboard') }}" class="text-gray-900 hover:text-blue-600">Espace Comptable</a></li>
+                    {% endif %}
+
+                    <li><a href="{{ path('app_logout') }}" class="text-gray-900 hover:text-blue-600">Déconnexion</a></li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}" class="text-gray-900 hover:text-blue-600">Se connecter</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
 </nav>
 
-<!-- Contenu principal de la page -->
+<!-- Main Content -->
 {% block body %}{% endblock %}
 
 <!-- Footer -->
-<footer class="bg-gray-800 text-white py-6">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<footer class="bg-gray-800 text-white py-6 mt-8">
+    <div class="max-w-screen-xl mx-auto px-6 lg:px-8">
         <div class="flex justify-between items-center">
             <div class="flex space-x-4">
-                <a href="#" class="hover:text-gray-400">À propos</a>
-                <a href="#" class="hover:text-gray-400">Politique de confidentialité</a>
-                <a href="#" class="hover:text-gray-400">Termes et conditions</a>
+                <a href="#" class="text-gray-400 hover:text-gray-300">À propos</a>
+                <a href="#" class="text-gray-400 hover:text-gray-300">Politique de confidentialité</a>
+                <a href="#" class="text-gray-400 hover:text-gray-300">Termes et conditions</a>
             </div>
             <div class="text-sm text-gray-400">
                 © 2024 GSB. Tous droits réservés.
@@ -83,5 +93,8 @@
         </div>
     </div>
 </footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
+
 </body>
 </html>
