@@ -114,13 +114,9 @@ GSB-Frais/
 
 ### Importer les données :
 
-- Rendez-vous sur la route /import ou via la section « BigBoy » dans le menu.
-- Cliquer sur les boutons dans l'ordre indiqué pour importer toutes les données.
+- Rendez-vous sur la route /import
+- Importez chacun des élements
 
-### Modifier les utilisateurs par défaut :
-
-- Accéder à /user pour modifier les rôles des utilisateurs.
-  
 ### Rôles utilisateurs
 
 - Visiteur médical (ROLE_VISITEUR) : saisie et consultation des frais.
