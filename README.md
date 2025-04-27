@@ -69,13 +69,7 @@ composer install
 php bin/console doctrine:migrations:migrate
 ```
 
-### Étape 4 : Installer les dépendances JavaScript et CSS
-Installez les dépendances front-end avec npm :
-```bash
-npm install
-npm run dev
-```
-### Étape 5 : Lancer le serveur Symfony
+### Étape 4 : Lancer le serveur Symfony
 Une fois l'installation terminée, lancez le serveur Symfony avec la commande suivante :
 ```bash
 symfony serve -d
