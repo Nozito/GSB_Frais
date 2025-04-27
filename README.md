@@ -10,15 +10,16 @@
 2. [Prérequis](#prérequis)
 3. [Installation](#installation)
 4. [Structure du projet](#structure-du-projet)
-5. [Cas d'utilisation](#cas-dutilisation)
+5. [Mise en place initial du projet](#mise-en-place-initial-du-projet)
+6. [Cas d'utilisation](#cas-dutilisation)
     - [Tuto Visiteur](#tuto-visiteur)
     - [Tuto Comptable](#tuto-comptable)
-6. [Compétences travaillées](#compétences-travaillées)
-7. [Fonctionnalités principales](#fonctionnalités-principales)
-8. [Spécificités du projet](#spécificités-du-projet)
-9. [Authentification à Deux Facteurs (A2F)](#authentification-à-deux-facteurs-a2f)
-10. [Capture d'écrans](#capture-décrans)
-11. [Diagramme de classe](#diagramme-de-classe)
+7. [Compétences travaillées](#compétences-travaillées)
+8. [Fonctionnalités principales](#fonctionnalités-principales)
+9. [Spécificités du projet](#spécificités-du-projet)
+10. [Authentification à Deux Facteurs (A2F)](#authentification-à-deux-facteurs-a2f)
+11. [Capture d'écrans](#capture-décrans)
+12. [Diagramme de classe](#diagramme-de-classe)
 
 ---
 
@@ -54,22 +55,30 @@ Avant de commencer, assurez-vous que vous avez installé les outils suivants sur
 Cloner ce projet dans un répertoire local à l'aide de la commande suivante :
 
 ```bash
-git clone https://github.com/username/GSB-Frais.git
-cd GSB-Frais
+git clone https://github.com/Nozito/GSB_Frais.git
+cd GSB_Frais
 ```
 ### Etape 2 : Installer les dépendances PHP
 Exécutez la commande suivante pour installer les dépendances via Composer :
 ```bash
 composer install
 ```
-### Étape 3 : Configurer la base de données
-1. Créez la base de données dans MySQL ou utilisez le fichier .env pour configurer votre connexion à la base de données.
-2. Exécutez la commande suivante pour migrer la base de données et créer les tables nécessaires :
+
+### Etape 3 : Configurer les variables d'environnement
 ```bash
-php bin/console doctrine:migrations:migrate
+nano .env.local
+```
+### Etape 4 : Installer les dépendances
+```bash
+composer install
+```
+### Etape 5 : Configurer la base de données
+```bash
+php bin/console doctrine:database:create
+php bin/console doctrine:schema:update --force
 ```
 
-### Étape 4 : Lancer le serveur Symfony
+### Étape 6 : Lancer le serveur Symfony
 Une fois l'installation terminée, lancez le serveur Symfony avec la commande suivante :
 ```bash
 symfony serve -d
@@ -101,7 +110,27 @@ GSB-Frais/
 │
 └── vendor/                   # Dépendances de Composer
 ```
-Cas d’utilisation
+## Mise en place initiale
+
+### Importer les données :
+
+- Rendez-vous sur la route /import ou via la section « BigBoy » dans le menu.
+- Cliquer sur les boutons dans l'ordre indiqué pour importer toutes les données.
+
+### Modifier les utilisateurs par défaut :
+
+- Accéder à /user pour modifier les rôles des utilisateurs.
+  
+### Rôles utilisateurs
+
+- Visiteur médical (ROLE_VISITEUR) : saisie et consultation des frais.
+- Comptable (ROLE_COMPTABLE) : validation, correction et traitement des frais.
+
+### Connexion à l'application :
+
+- Se connecter à /login avec un compte ayant les rôles adaptés.
+
+Attention : sans les bons rôles, certaines parties de l'application ne seront pas accessibles.
 
 ## Tuto Visiteur
 
